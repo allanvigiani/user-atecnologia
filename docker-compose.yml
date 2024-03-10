@@ -1,0 +1,29 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4001:4001"
+    networks:
+      - mynetwork
+
+  auth:
+    build:
+      context: ./backend/api/auth
+    ports:
+      - "3005:3005"
+    networks:
+      - mynetwork
+
+  user:
+    build:
+      context: ./backend/api/user
+    ports:
+      - "3006:3006"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
