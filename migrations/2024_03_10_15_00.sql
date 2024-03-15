@@ -8,9 +8,10 @@ CREATE TABLE IF NOT EXISTS "user" (
     "password" TEXT NOT NULL,
     "address" VARCHAR(250),
     "contact_phone" VARCHAR(20),
+    "login_attempts" INT DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
-
+    "deleted_at" TIMESTAMP(3),
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );
 
@@ -20,11 +21,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS "user_email_key" ON "user"("email");
 
 CREATE TABLE IF NOT EXISTS "user_sessions" (
     "id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
     "start_login" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "end_login" TIMESTAMP(3),
-    "user_id" INTEGER NOT NULL,
     "token" TEXT,
-
     CONSTRAINT "user_sessions_pkey" PRIMARY KEY ("id")
 );
 

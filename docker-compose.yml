@@ -1,12 +1,12 @@
 version: '3'
 services:
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "4001:4001"
-    networks:
-      - mynetwork
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - "4001:4001"
+  #   networks:
+  #     - mynetwork
 
   auth:
     build:
@@ -23,6 +23,14 @@ services:
       - "3006:3006"
     networks:
       - mynetwork
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq
 
 networks:
   mynetwork:
