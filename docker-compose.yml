@@ -24,6 +24,14 @@ services:
     networks:
       - mynetwork
 
+  schedule:
+    build:
+      context: ./backend/api/schedule
+    ports:
+      - "3007:3007"
+    networks:
+      - mynetwork
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
