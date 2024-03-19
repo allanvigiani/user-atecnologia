@@ -1,5 +1,14 @@
 version: '3'
 services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq
+
   # frontend:
   #   build:
   #     context: ./frontend
@@ -31,14 +40,6 @@ services:
       - "3007:3007"
     networks:
       - mynetwork
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - ./rabbitmq_data:/var/lib/rabbitmq
 
 networks:
   mynetwork:
