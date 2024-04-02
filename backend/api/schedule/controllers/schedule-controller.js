@@ -42,7 +42,7 @@ class ScheduleController {
 
             const message = {
                 company_id: company_id,
-                user_id: user_id,
+                user_id: userId,
                 service_id: service_id,
                 service_hour_id: service_hour_id,
                 service_day_id: service_day_id,
