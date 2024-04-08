@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TextInputMask } from 'react-native-masked-text';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordVisible, setPasswordVisible] = useState(false);
     const [address, setAddress] = useState('');
     const [contactPhone, setcontactPhone] = useState('');
-
+    
     const navigation = useNavigation();
 
     return (
@@ -45,14 +47,22 @@ export default function Register() {
                         onChangeText={setEmail}
                     />
 
-                    <TextInput
-                        style={Styles.input}
-                        placeholder="Senha"
-                        placeholderTextColor="#FFF"
-                        secureTextEntry={true}
-                        value={password}
-                        onChangeText={setPassword}
-                    />
+                    <View style={Styles.input_area}>
+                        <TextInput
+                            style={Styles.password_input}
+                            placeholder="Senha"
+                            placeholderTextColor="#FFF"
+                            secureTextEntry={!passwordVisible}
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+                        <TouchableOpacity 
+                            style={Styles.icon}
+                            onPress={() => setPasswordVisible(!passwordVisible)}
+                        >
+                            <Ionicons name={passwordVisible ? "eye-off" : "eye"} size={20} color="#FFF" />
+                        </TouchableOpacity>
+                    </View>
 
                     <TextInput
                         style={Styles.input}
@@ -138,6 +148,28 @@ const Styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#FFF',
         color: '#FFF',
+    },
+    input_area: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '85%',
+        backgroundColor: '#4f297a',
+        borderRadius: 25,
+        marginBottom: 15,
+        paddingTop: 5,
+        borderWidth: 1,
+        borderColor: '#FFF',
+        color: '#FFF',
+    },
+    password_input: {
+        paddingLeft: 20,
+        width: '90%',
+        marginBottom: 15,
+        color: '#FFF',
+    },
+    icon: {
+        paddingRight: 10,
     },
     button: {
         backgroundColor: '#FFF',
