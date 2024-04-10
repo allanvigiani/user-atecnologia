@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+
+import Routes from './routes';
 
 export default function Home() {
-
-
     return (
-        <View><Text>Olá, estamos na home page!</Text></View>
+        <NavigationContainer independent={true} >
+            <StatusBar backgroundColor='#4f297a'/>
+            <Routes/>
+        </NavigationContainer>
     );
 }
