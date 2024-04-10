@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import axios from 'axios';
+import baseUrl from '../../apis/User';
 import { useNavigation } from '@react-navigation/native';
 import { TextInputMask } from 'react-native-masked-text';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,8 +13,29 @@ export default function Register() {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [address, setAddress] = useState('');
     const [contactPhone, setcontactPhone] = useState('');
-    
+    const [message, setMessage] = useState('');
+
     const navigation = useNavigation();
+
+    const registerUser = async () => {
+
+        axios.post(baseUrl + '/', {
+            name: name,
+            email: email,
+            password: password,
+            address: address,
+            contact_phone: contactPhone
+        }).then(response => {
+            setMessage(response.data.message);
+            Alert.alert('Cadastro realizado com sucesso!')
+            navigation.navigate('Login');
+        }).catch(error => {
+            if (error.response) {
+                setMessage(error.response.data.message);
+            }
+        });
+
+    }
 
     return (
         <View style={Styles.container}>
@@ -28,7 +51,7 @@ export default function Register() {
 
                 <View style={Styles.form_content}>
 
-                <Text style={Styles.title}>Faça seu cadastro!</Text>
+                    <Text style={Styles.title}>Faça seu cadastro!</Text>
 
                     <TextInput
                         style={Styles.input}
@@ -56,7 +79,7 @@ export default function Register() {
                             value={password}
                             onChangeText={setPassword}
                         />
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={Styles.icon}
                             onPress={() => setPasswordVisible(!passwordVisible)}
                         >
@@ -86,9 +109,11 @@ export default function Register() {
                         onChangeText={setcontactPhone}
                     />
 
-                    <TouchableOpacity 
+                    {message !== '' && <Text style={Styles.message}>{message}</Text>}
+
+                    <TouchableOpacity
                         style={Styles.button}
-                        onPress={() => {/* Função de cadastro */}}
+                        onPress={registerUser}
                     >
                         <Text style={Styles.text_button}>Cadastrar</Text>
                     </TouchableOpacity>
@@ -200,4 +225,8 @@ const Styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 16,
     },
+    message: {
+        fontSize: 16,
+        color: '#FFF'
+    }
 });

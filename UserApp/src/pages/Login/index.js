@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
+import baseUrl from '../../apis/UserAuth'
+import { storeToken } from '../../secure/StoreToken';
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,8 +10,37 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const navigation = useNavigation();
+
+    const loginUser = async () => {
+        try {
+
+            const response = await axios.post(baseUrl + '/login', {
+                email: email,
+                password: password,
+            });
+
+            setLoading(true);
+
+            const token = response.data.message.token;
+            await storeToken(token);
+
+            setTimeout(() => {
+                navigation.navigate('Home');
+                setLoading(false);
+            }, 2000);
+        } catch (error) {
+            setLoading(false);
+            if (error.response) {
+                setMessage(error.response.data.message);
+            } else {
+                setMessage(error);
+            }
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -22,7 +54,7 @@ export default function Login() {
 
             <View style={styles.container_form}>
                 <Text style={styles.title}>Acesse sua conta!</Text>
-                
+
                 <TextInput
                     style={styles.input}
                     placeholder="E-mail"
@@ -41,7 +73,7 @@ export default function Login() {
                         value={password}
                         onChangeText={setPassword}
                     />
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.icon}
                         onPress={() => setPasswordVisible(!passwordVisible)}
                     >
@@ -56,9 +88,19 @@ export default function Login() {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity 
+                {message !== '' && <Text style={styles.message}>{message}</Text>}
+
+                {loading && (
+                    <Modal transparent={true} animationType="none">
+                        <View style={styles.modalBackground}>
+                            <ActivityIndicator size="large" color="#0000ff" />
+                        </View>
+                    </Modal>
+                )}
+
+                <TouchableOpacity
                     style={styles.button}
-                    onPress={() => {/* Função de login */}}
+                    onPress={loginUser}
                 >
                     <Text style={styles.text_button}>Entrar</Text>
                 </TouchableOpacity>
@@ -144,9 +186,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-        text_button: {
+    text_button: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#4f297a',
     },
+    message: {
+        fontSize: 16,
+        color: '#FFF'
+    },
+    modalBackground: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
 });
