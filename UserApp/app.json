@@ -25,6 +25,9 @@
     },
     "web": {
       "favicon": "./assets/agendai_logo.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }
