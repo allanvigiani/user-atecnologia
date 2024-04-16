@@ -1,3 +1,3 @@
-const baseURL = 'http://10.0.2.2:3008/user-auth';
+const baseURL = 'https://user-auth-api2.vercel.app/user-auth';
 
 export default baseURL;

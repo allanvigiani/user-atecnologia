@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
 import baseUrl from '../../apis/UserAuth'
 import { storeToken } from '../../secure/StoreToken';
+import { getToken } from '../../secure/GetToken'
+import { storeUserId } from '../../secure/StoreUserId';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +19,7 @@ export default function Login() {
 
     const loginUser = async () => {
         try {
-
+            
             const response = await axios.post(baseUrl + '/login', {
                 email: email,
                 password: password,
@@ -28,6 +30,9 @@ export default function Login() {
             const token = response.data.message.token;
             await storeToken(token);
 
+            const userId = response.data.message.id;
+            await storeUserId(userId);
+
             setTimeout(() => {
                 navigation.navigate('Home');
                 setLoading(false);
@@ -37,10 +42,36 @@ export default function Login() {
             if (error.response) {
                 setMessage(error.response.data.message);
             } else {
-                setMessage(error);
+                setMessage(error.message);
             }
         }
     };
+
+
+    const verifyUserLogged = async () => {
+        try {
+            
+            const token = await getToken();
+
+            setLoading(true);
+
+            if (token) {
+                setTimeout(() => {
+                    navigation.navigate('Home');
+                    setLoading(false);
+                }, 2000);
+            }
+        
+        } catch (error) {
+            setLoading(false);
+            setMessage('Não foi possível realizar o login!');
+            
+        }
+    };
+
+    useEffect(() => {
+        verifyUserLogged();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -93,7 +124,7 @@ export default function Login() {
                 {loading && (
                     <Modal transparent={true} animationType="none">
                         <View style={styles.modalBackground}>
-                            <ActivityIndicator size="large" color="#0000ff" />
+                            <ActivityIndicator size="large" color="#4f297a" />
                         </View>
                     </Modal>
                 )}
@@ -204,5 +235,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      },
+    },
 });

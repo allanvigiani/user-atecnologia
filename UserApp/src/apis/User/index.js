@@ -1,3 +1,3 @@
-const baseURL = 'http://10.0.2.2:3005/user';
+const baseURL = 'https://user-api-one.vercel.app/user';
 
 export default baseURL;
