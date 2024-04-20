@@ -19,7 +19,7 @@ export default function Login() {
 
     const loginUser = async () => {
         try {
-            
+
             const response = await axios.post(baseUrl + '/login', {
                 email: email,
                 password: password,
@@ -50,8 +50,18 @@ export default function Login() {
 
     const verifyUserLogged = async () => {
         try {
-            
+
             const token = await getToken();
+
+            const response = await axios.get(baseUrl + '/user', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const user_id = response.data.message.id;
+            
+            await storeUserId(user_id);
 
             setLoading(true);
 
@@ -61,11 +71,11 @@ export default function Login() {
                     setLoading(false);
                 }, 2000);
             }
-        
+
         } catch (error) {
             setLoading(false);
             setMessage('Não foi possível realizar o login!');
-            
+
         }
     };
 

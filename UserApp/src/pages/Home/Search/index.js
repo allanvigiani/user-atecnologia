@@ -1,83 +1,180 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, ScrollView, Modal, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
-import { getToken } from '../../../secure/GetToken';
-import baseUrl from "../../../apis/CompanyServices";
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+
+import { getToken } from '../../../secure/GetToken';
+import { getUserId } from '../../../secure/GetUserId';
+import baseUrl from "../../../apis/CompanyServices";
 
 export default function Search() {
 
+    const navigation = useNavigation();
+
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+
     const [services, setServices] = useState([]);
+    const [setedDays, setDays] = useState([]);
+
+    const [days, setDayService] = useState('');
+    const [date, setDateService] = useState('');
+    const [hours, setHourService] = useState('');
+
+    const [selectedService, setSelectedService] = useState(null);
 
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedService, setSelectedService] = useState(null);
+    const [dayModalVisible, setDayModalVisible] = useState(false);
+    const [dateModalVisible, setDateModalVisible] = useState(false);
+    const [hourModalVisible, setHourModalVisible] = useState(false);
+
+    const [tempDay, setTempDay] = useState(0);
+    const [tempDate, setTempDate] = useState(0);
+    const [tempHour, setTempHour] = useState(0);
+
+    const availableDays = null;
+
+    const availableDates = {
+        0: "27/05/2024",
+        1: "06/06/2024",
+        2: "12/06/2024"
+    };
+
+    const availableHours = {
+        0: "08:00",
+        1: "10:00",
+        2: "14:00"
+    };
 
     const getServices = async () => {
         try {
             setLoading(true);
             const token = await getToken();
-
             const response = await axios.get(baseUrl, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
-
             if (response.data.message.result) {
                 setServices(response.data.message.result);
             } else {
                 setMessage('Nenhum serviço disponível no momento.');
             }
-
-            setTimeout(() => {
-                setLoading(false);
-            }, 2000);
+            setTimeout(() => setLoading(false), 2000);
         } catch (error) {
             setLoading(false);
-            if (error.response) {
-                setMessage(error.response.data.message + ' Tente novamente mais tarde!');
-            } else {
-                setMessage(error.message + ' Tente novamente mais tarde!');
-            }
+            const errorMessage = error.response ? error.response.data.message : error.message;
+            setMessage(`${errorMessage} Tente novamente mais tarde!`);
         }
     };
 
-    const openScheduleModal = async (service) => {
-        try {
-            setSelectedService(service);
-            setModalVisible(true);
-        } catch (error) {
-            Alert.alert(error.message);
-        }
-    };
-
-    const scheduleService = async (service) => {
-        try {
-            console.log('Serviço agendado!', service)
-        } catch (error) {
-            Alert.alert(error.message);
-        }
-    };
-
+    // Inicialização da tela
     useEffect(() => {
         getServices();
     }, []);
+
+    useEffect(() => {
+        if (hours !== '') {
+            finalizeSchedule(date, days, hours, selectedService);
+        }
+    }, [hours, date, days, selectedService]);
+
+    const handleHourChange = (itemValue, itemIndex) => {
+        setTempHour(itemIndex);
+    };
+
+    const handleDayChange = (itemValue, itemIndex) => {
+        setTempDay(itemValue);
+    };
+
+    const handleDateChange = (itemValue, itemIndex) => {
+        setTempDate(itemIndex);
+    };
+
+    const openScheduleModal = (service) => {
+        setSelectedService(service);
+        setModalVisible(true);
+    };
+
+    const transitionToDayModal = async() => {
+        setLoading(true);
+
+        const token = await getToken();
+        const serviceId = selectedService.id;
+        const companyId = selectedService.company_id;
+
+        const response = await axios.get(baseUrl + `service/days/${serviceId}/${companyId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.data.message) {
+            setDays(response.data.message);
+        } 
+
+        setTimeout(() => {
+            setModalVisible(false);
+            setLoading(false)
+            setDayModalVisible(true);
+        }, 1000);
+        // Carregar dias da semana disponíveis aqui
+    };
+
+    const confirmDay = () => {
+        setDayService(tempDay);
+        setDayModalVisible(false);
+        setDateModalVisible(true);
+    };
+
+    const confirmDate = () => {
+        setDateService(tempDate);
+        setDateModalVisible(false);
+        setHourModalVisible(true);
+    };
+
+    const confirmHour = async () => {
+        setHourService(tempHour);
+        setHourModalVisible(false);
+        await finalizeSchedule();
+    };
+
+    async function finalizeSchedule(date, days, hours, selectedService) {
+        try {
+            const userId = await getUserId();
+            const scheduleFields = {
+                date: date,
+                day: days,
+                hour: hours,
+                service: selectedService,
+                user_id: userId
+            };
+
+            Alert.alert('Agendamento Realizado!');
+            // Envia para a API de agendamento
+
+            await resetState();
+
+        } catch (error) {
+            console.error('Error finalizing schedule:', error);
+            Alert.alert('Error', 'Não foi possível realizar o agendamento. Tente mais tarde!');
+        }
+    }
+
+    const resetState = async () => {
+        navigation.navigate('Search');
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.search_section}>
                 <Ionicons name="search" size={20} color="#4f297a" style={styles.search_icon} />
-                <TextInput
-                    style={styles.search_input}
-                    placeholder="Pesquise aqui..."
-                    placeholderTextColor="#666"
-                />
+                <TextInput style={styles.search_input} placeholder="Pesquise aqui..." placeholderTextColor="#666" />
             </View>
             <View>
                 {message !== '' && <Text style={styles.message}>{message}</Text>}
-
                 {loading && (
                     <Modal transparent={true} animationType="none">
                         <View style={styles.loading_circle}>
@@ -85,7 +182,6 @@ export default function Search() {
                         </View>
                     </Modal>
                 )}
-
                 <ScrollView style={styles.container_service}>
                     {services.map((service, index) => (
                         <View key={service.id} style={styles.itemBox}>
@@ -100,23 +196,17 @@ export default function Search() {
                         </View>
                     ))}
                 </ScrollView>
-
             </View>
 
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
+                onRequestClose={() => setModalVisible(!modalVisible)}
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <TouchableOpacity
-                            style={styles.closeButton}
-                            onPress={() => setModalVisible(false)}
-                        >
+                        <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                             <Ionicons name="close-circle" size={30} color="#4f297a" />
                         </TouchableOpacity>
                         <Text style={styles.modalText}>AgendAI!</Text>
@@ -125,18 +215,109 @@ export default function Search() {
                         <Text style={styles.labelText}>Preço: R${selectedService ? selectedService.price : ''}</Text>
                         <Text style={styles.labelText}>Empresa: {selectedService ? selectedService.company_name : ''}</Text>
                         <Text style={styles.labelText}>Endereço: {selectedService ? selectedService.address : ''}</Text>
-                        <TouchableOpacity
-                            style={styles.schedule_button}
-                            onPress={() => scheduleService(selectedService)}
-                        >
-                            <Text style={styles.schedule_text}>Agendar</Text>
+                        <TouchableOpacity style={styles.schedule_button} onPress={transitionToDayModal}>
+                            <Text style={styles.schedule_text}>Confirmar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
 
-        </View>
+            {/* DIA DA SEMANA */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={dayModalVisible}
+                onRequestClose={() => setDayModalVisible(!dayModalVisible)}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setDayModalVisible(false)}
+                        >
+                            <Ionicons name="close-circle" size={30} color="#4f297a" />
+                        </TouchableOpacity>
+                        <Text style={styles.modalText}>Escolha o dia da semana!</Text>
+                        <Picker
+                            selectedValue={tempDay.toString()}
+                            onValueChange={handleDayChange}
+                            style={{ height: 40, width: 200 }}
+                        >
+                            {Object.entries(setedDays).map(([index, day]) => (
+                                <Picker.Item key={index} label={day} value={index.toString()} />
+                            ))}
+                        </Picker>
+                        <TouchableOpacity style={styles.next_button} onPress={confirmDay}>
+                            <Text style={styles.next_text}>Confirmar Dia</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+            {/* DATA DO SERVIÇO */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={dateModalVisible}
+                onRequestClose={() => setDateModalVisible(!dateModalVisible)}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setDateModalVisible(false)}
+                        >
+                            <Ionicons name="close-circle" size={30} color="#4f297a" />
+                        </TouchableOpacity>
+                        <Text style={styles.modalText}>Escolha uma data!</Text>
+                        <Picker
+                            selectedValue={tempDate.toString()}
+                            onValueChange={handleDateChange}
+                            style={{ height: 40, width: 200 }}
+                        >
+                            {Object.entries(availableDates).map(([index, date]) => (
+                                <Picker.Item key={index} label={date} value={index.toString()} />
+                            ))}
+                        </Picker>
+                        <TouchableOpacity style={styles.next_button} onPress={confirmDate}>
+                            <Text style={styles.next_text}>Confirmar Data</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
 
+            {/* HORÁRIO DO SERVIÇO */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={hourModalVisible}
+                onRequestClose={() => setHourModalVisible(!hourModalVisible)}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setHourModalVisible(false)}
+                        >
+                            <Ionicons name="close-circle" size={30} color="#4f297a" />
+                        </TouchableOpacity>
+                        <Text style={styles.modalText}>Escolha um horário!</Text>
+                        <Picker
+                            selectedValue={tempHour.toString()}
+                            onValueChange={handleHourChange}
+                            style={{ height: 40, width: 200 }}
+                        >
+                            {Object.entries(availableHours).map(([index, hour]) => (
+                                <Picker.Item key={index} label={hour} value={index.toString()} />
+                            ))}
+                        </Picker>
+                        <TouchableOpacity style={styles.next_button} onPress={confirmHour}>
+                            <Text style={styles.next_text}>Confirmar Horário</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+        </View >
     );
 }
 
@@ -276,6 +457,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     schedule_text: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFF',
+    },
+    next_button: {
+        marginTop: 20,
+        backgroundColor: '#4f297a',
+        borderRadius: 35,
+        paddingVertical: 8,
+        width: '60%',
+        height: '18%',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    next_text: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#FFF',
