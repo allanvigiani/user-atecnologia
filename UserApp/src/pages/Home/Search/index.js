@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TextInput, ScrollView, Modal, ActivityIndicator
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import { format, addWeeks, nextSaturday } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import axios from 'axios';
 
 import { getToken } from '../../../secure/GetToken';
@@ -18,6 +20,8 @@ export default function Search() {
 
     const [services, setServices] = useState([]);
     const [setedDays, setDays] = useState([]);
+    const [setedDates, setDates] = useState([]);
+    const [setedHours, setHours] = useState([]);
 
     const [days, setDayService] = useState('');
     const [date, setDateService] = useState('');
@@ -34,18 +38,26 @@ export default function Search() {
     const [tempDate, setTempDate] = useState(0);
     const [tempHour, setTempHour] = useState(0);
 
-    const availableDays = null;
+    const nextDays = async (index) => {
 
-    const availableDates = {
-        0: "27/05/2024",
-        1: "06/06/2024",
-        2: "12/06/2024"
-    };
+        const hoje = new Date();
+        const diaAtual = hoje.getDay();
+    
+        let diasParaAdicionar = (index - diaAtual + 7) % 7;
+        if (diasParaAdicionar === 0) diasParaAdicionar = 7;
+    
+        const primeiraData = new Date(hoje);
+        primeiraData.setDate(hoje.getDate() + diasParaAdicionar);
+    
+        const datas = [primeiraData];
 
-    const availableHours = {
-        0: "08:00",
-        1: "10:00",
-        2: "14:00"
+        for (let i = 1; i < 3; i++) {
+            const novaData = new Date(datas[i - 1]);
+            novaData.setDate(datas[i - 1].getDate() + 7);
+            datas.push(novaData);
+        }
+    
+        return datas.map(data => format(data, 'dd/MM/yyyy', { locale: ptBR }));
     };
 
     const getServices = async () => {
@@ -75,14 +87,14 @@ export default function Search() {
         getServices();
     }, []);
 
-    useEffect(() => {
-        if (hours !== '') {
-            finalizeSchedule(date, days, hours, selectedService);
-        }
-    }, [hours, date, days, selectedService]);
+    // useEffect(() => {
+    //     if (hours != '') {
+    //         finalizeSchedule(date, days, hours, selectedService);
+    //     }
+    // }, [hours, date, days, selectedService]);
 
     const handleHourChange = (itemValue, itemIndex) => {
-        setTempHour(itemIndex);
+        setTempHour(itemValue);
     };
 
     const handleDayChange = (itemValue, itemIndex) => {
@@ -90,7 +102,7 @@ export default function Search() {
     };
 
     const handleDateChange = (itemValue, itemIndex) => {
-        setTempDate(itemIndex);
+        setTempDate(itemValue);
     };
 
     const openScheduleModal = (service) => {
@@ -98,7 +110,7 @@ export default function Search() {
         setModalVisible(true);
     };
 
-    const transitionToDayModal = async() => {
+    const transitionToDayModal = async () => {
         setLoading(true);
 
         const token = await getToken();
@@ -113,26 +125,56 @@ export default function Search() {
 
         if (response.data.message) {
             setDays(response.data.message);
-        } 
+        }
 
         setTimeout(() => {
             setModalVisible(false);
             setLoading(false)
             setDayModalVisible(true);
         }, 1000);
-        // Carregar dias da semana disponíveis aqui
     };
 
-    const confirmDay = () => {
+    const confirmDay = async () => {
         setDayService(tempDay);
-        setDayModalVisible(false);
-        setDateModalVisible(true);
+
+        setLoading(true);
+
+        const dates = await nextDays(tempDay);
+        
+        setDates(dates);
+
+        setTimeout(() => {
+            setDayModalVisible(false);
+            setLoading(false)
+            setDateModalVisible(true);
+        }, 1000);
     };
 
-    const confirmDate = () => {
+    const confirmDate = async () => {
+
         setDateService(tempDate);
-        setDateModalVisible(false);
-        setHourModalVisible(true);
+
+        setLoading(true);
+
+        const token = await getToken();
+        const serviceId = selectedService.id;
+        const companyId = selectedService.company_id;
+
+        const response = await axios.get(baseUrl + `service/hours/${serviceId}/${companyId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.data.message) {
+            setHours(response.data.message);
+        }
+
+        setTimeout(() => {
+            setDateModalVisible(false);
+            setLoading(false);
+            setHourModalVisible(true);
+        }, 1000);
     };
 
     const confirmHour = async () => {
@@ -141,7 +183,7 @@ export default function Search() {
         await finalizeSchedule();
     };
 
-    async function finalizeSchedule(date, days, hours, selectedService) {
+    async function finalizeSchedule() {
         try {
             const userId = await getUserId();
             const scheduleFields = {
@@ -153,9 +195,12 @@ export default function Search() {
             };
 
             Alert.alert('Agendamento Realizado!');
+
             // Envia para a API de agendamento
 
-            await resetState();
+            console.log('Agendamento:', scheduleFields);
+
+            // await resetState();
 
         } catch (error) {
             console.error('Error finalizing schedule:', error);
@@ -274,8 +319,8 @@ export default function Search() {
                             onValueChange={handleDateChange}
                             style={{ height: 40, width: 200 }}
                         >
-                            {Object.entries(availableDates).map(([index, date]) => (
-                                <Picker.Item key={index} label={date} value={index.toString()} />
+                            {Object.entries(setedDates).map(([index, date]) => (
+                                <Picker.Item key={index} label={date} value={date.toString()} />
                             ))}
                         </Picker>
                         <TouchableOpacity style={styles.next_button} onPress={confirmDate}>
@@ -306,7 +351,7 @@ export default function Search() {
                             onValueChange={handleHourChange}
                             style={{ height: 40, width: 200 }}
                         >
-                            {Object.entries(availableHours).map(([index, hour]) => (
+                            {Object.entries(setedHours).map(([index, hour]) => (
                                 <Picker.Item key={index} label={hour} value={index.toString()} />
                             ))}
                         </Picker>
