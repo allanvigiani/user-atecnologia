@@ -18,6 +18,8 @@ export default function Search() {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const [searchService, setSearchService] = useState('');
+
     const [services, setServices] = useState([]);
     const [setedDays, setDays] = useState([]);
     const [setedDates, setDates] = useState([]);
@@ -38,17 +40,37 @@ export default function Search() {
     const [tempDate, setTempDate] = useState(0);
     const [tempHour, setTempHour] = useState(0);
 
+    const handleSearchService = async () => {
+        if (searchService.length >= 3) {
+
+            setLoading(true);
+            const token = await getToken();
+
+            const response = await axios.get(baseUrl + `search/${searchService}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setServices(response.data.message);
+            setLoading(false);
+
+        }else if (searchService.length == 0) {
+            getServices();
+        }
+    };
+
     const nextDays = async (index) => {
 
         const hoje = new Date();
         const diaAtual = hoje.getDay();
-    
+
         let diasParaAdicionar = (index - diaAtual + 7) % 7;
         if (diasParaAdicionar === 0) diasParaAdicionar = 7;
-    
+
         const primeiraData = new Date(hoje);
         primeiraData.setDate(hoje.getDate() + diasParaAdicionar);
-    
+
         const datas = [primeiraData];
 
         for (let i = 1; i < 3; i++) {
@@ -56,7 +78,7 @@ export default function Search() {
             novaData.setDate(datas[i - 1].getDate() + 7);
             datas.push(novaData);
         }
-    
+
         return datas.map(data => format(data, 'dd/MM/yyyy', { locale: ptBR }));
     };
 
@@ -140,7 +162,7 @@ export default function Search() {
         setLoading(true);
 
         const dates = await nextDays(tempDay);
-        
+
         setDates(dates);
 
         setTimeout(() => {
@@ -216,7 +238,13 @@ export default function Search() {
         <View style={styles.container}>
             <View style={styles.search_section}>
                 <Ionicons name="search" size={20} color="#4f297a" style={styles.search_icon} />
-                <TextInput style={styles.search_input} placeholder="Pesquise aqui..." placeholderTextColor="#666" />
+                <TextInput 
+                    style={styles.search_input} 
+                    placeholder="Pesquise aqui..." 
+                    placeholderTextColor="#666" 
+                    onChangeText={setSearchService}
+                    onSubmitEditing={handleSearchService}
+                />
             </View>
             <View>
                 {message !== '' && <Text style={styles.message}>{message}</Text>}

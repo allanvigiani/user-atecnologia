@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityInd
 import baseUrl from '../../apis/UserAuth'
 import { storeToken } from '../../secure/StoreToken';
 import { getToken } from '../../secure/GetToken'
-import { storeUserId } from '../../secure/StoreUserId';
+import { storeUserId, storeUserName } from '../../secure/StoreUserId';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,7 +31,10 @@ export default function Login() {
             await storeToken(token);
 
             const userId = response.data.message.id;
+            const userName = response.data.message.name;
+            
             await storeUserId(userId);
+            await storeUserName(userName);
 
             setTimeout(() => {
                 navigation.navigate('Home');
@@ -60,8 +63,10 @@ export default function Login() {
             });
 
             const user_id = response.data.message.id;
+            const user_name = response.data.message.name;
             
             await storeUserId(user_id);
+            await storeUserName(user_name);
 
             setLoading(true);
 
