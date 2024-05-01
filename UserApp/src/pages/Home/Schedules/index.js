@@ -4,6 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function Schedule() {
     return (
-        <View><Text>AGENDAMENTO PAGE!</Text></View>
+        <View><Text>AQUI VAI MOSTRAR TODOS OS AGENDAMENTOS COM OS STATUS DE CADA UM!</Text></View>
     );
 }
