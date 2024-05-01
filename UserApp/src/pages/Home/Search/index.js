@@ -180,7 +180,8 @@ export default function Search() {
         const dates = await nextDays(newTempDay);
 
         setDates(dates);
-
+        setTempDate(dates[0]);
+        
         setTimeout(() => {
             setDayModalVisible(false);
             setLoading(false)
@@ -209,6 +210,15 @@ export default function Search() {
 
         if (response.data.message) {
             setHours(response.data.message);
+            // Seta um valor com default (O que ja vem selecionado no picker)
+
+            console.log('response:', response.data.message)
+
+            const keys = Object.keys(response.data.message);
+            const firstKey = keys[0];
+
+            setHourService(parseInt(firstKey));
+
         }else {
             Alert.alert('Error', 'Não foi possível encontrar horários disponíveis. Tente outro dia!');
         }
@@ -426,12 +436,12 @@ export default function Search() {
                             </TouchableOpacity>
                             <Text style={styles.modalText}>Escolha um horário!</Text>
                             <Picker
-                                selectedValue={tempHour.toString()}
+                                selectedValue={tempHour}
                                 onValueChange={handleHourChange}
                                 style={{ height: 40, width: 200 }}
                             >
                                 {Object.entries(setedHours).map(([index, hour]) => (
-                                    <Picker.Item key={index} label={hour} value={index.toString()} />
+                                    <Picker.Item key={index} label={hour} value={index} />
                                 ))}
                             </Picker>
                             <TouchableOpacity style={styles.next_button} onPress={confirmHour}>
