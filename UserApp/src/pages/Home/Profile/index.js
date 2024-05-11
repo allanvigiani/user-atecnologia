@@ -1,192 +1,164 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
     StyleSheet,
     SafeAreaView,
     View,
-    ScrollView,
     Text,
-    TouchableOpacity,
-    Switch,
-    Image,
 } from 'react-native';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+import { Avatar, Title, Caption, TouchableRipple } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function Example() {
-    const [darkMode, setDarkMode] = useState(false);
+export default function Profile({ navigation }) {
 
-    useEffect(() => {
-        console.log('NOTURNO CLICKOU:', darkMode);
-    }, [darkMode]);
+    const navigateToScreen = (screenName) => () => {
+        navigation.navigate(screenName);
+    };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-            <View style={styles.container}>
-                <View style={styles.profile}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            // handle onPress
-                        }}>
-                        {/* <View style={styles.profileAvatarWrapper}>
-                            <Image
-                                alt=""
-                                source={{
-                                    uri: '',
-                                }}
-                                style={styles.profileAvatar} />
-
-                            <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}>
-                                <View style={styles.profileAction}>
-                                    <FeatherIcon
-                                        color="#fff"
-                                        name="edit-3"
-                                        size={15} />
-                                </View>
-                            </TouchableOpacity>
-                        </View> */}
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.profileName}>NOME</Text>
-                        <Text style={styles.profileAddress}>
-                            ALGO AQUI
-                        </Text>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.userInfoSection}>
+                <View style={{ flexDirection: 'row', marginTop: 15 }}>
+                    <Avatar.Image source={{
+                        uri: 'https://www.w3schools.com/w3images/avatar3.png'
+                    }} size={80} />
+                    <View style={{ marginLeft: 20 }}>
+                        <Title style={[styles.title, {
+                            marginTop: 15,
+                            marginBottom: 5,
+                        }]}>Thony Cunha</Title>
+                        <Caption style={styles.caption}>@thonycunha</Caption>
                     </View>
                 </View>
-
-                <ScrollView>
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>CONFIGURAÇÃO</Text>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                console.log('CLICKOU')
-                            }}
-                            style={styles.row}>
-                            <View style={[styles.rowIcon, { backgroundColor: '#fe9400' }]}>
-                                <FeatherIcon color="#fff" name="globe" size={20} />
-                            </View>
-
-                            <Text style={styles.rowLabel}>TEST</Text>
-
-                            <View style={styles.rowSpacer} />
-
-                            <FeatherIcon
-                                color="#C6C6C6"
-                                name="chevron-right"
-                                size={20} />
-                        </TouchableOpacity>
-
-                        <View style={styles.row}>
-                            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
-                                <FeatherIcon color="#fff" name="moon" size={20} />
-                            </View>
-
-                            <Text style={styles.rowLabel}>NOTURNO</Text>
-
-                            <View style={styles.rowSpacer} />
-
-                            <Switch
-                                onValueChange={value => setDarkMode(value)}
-                                value={darkMode}
-                            />
-                        </View>
-                    </View>
-                </ScrollView>
             </View>
-        </SafeAreaView>
+
+            <View style={styles.userInfoSection}>
+                <View style={styles.row}>
+                    <Icon name='map-marker-radius' color='#4f297a' size={20} style={{ marginLeft: 10 }} />
+                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>Rua Vereador Luiz Antônio da Cunha, Rio de Janeiro</Text>
+                </View>
+                <View style={styles.row}>
+                    <Icon name='phone' color='#4f297a' size={20} style={{ marginLeft: 10 }} />
+                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>(21) 96733-4174</Text>
+                </View>
+                <View style={styles.row}>
+                    <Icon name='email' color='#4f297a' size={20} style={{ marginLeft: 10 }} />
+                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>thonycunha@gmail.com</Text>
+                </View>
+            </View>
+
+            <TouchableRipple onPress={navigateToScreen('Screen1')}>
+                <View style={styles.infoBoxWrapper}>
+                    <View style={[styles.infoBox, {
+                        borderRightColor: '#dddddd',
+                        borderRightWidth: 1,
+                    }]}>
+                        <Title>10</Title>
+                        <Caption>Agendados</Caption>
+                    </View>
+
+                    <View style={styles.infoBox}>
+                        <Title>5</Title>
+                        <Caption>Confirmados</Caption>
+                    </View>
+                </View>
+            </TouchableRipple>
+
+
+
+            <View style={styles.menuwrapper}>
+                <TouchableRipple onPress={navigateToScreen('FavoriteScreen')}>
+                    <View style={styles.MenuItem}>
+                        <Icon name='heart-outline' color='#4f297a' size={25} />
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="chevron-forward" size={24} color="#4f297a" />
+                        </View>
+                        <Text style={styles.MenuItemText}>Favoritos</Text>
+                    </View>
+                </TouchableRipple>
+                <TouchableRipple onPress={navigateToScreen('ShareScreen')}>
+                    <View style={styles.MenuItem}>
+                        <Icon name='share-outline' color='#4f297a' size={25} />
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="chevron-forward" size={24} color="#4f297a" />
+                        </View>
+                        <Text style={styles.MenuItemText}>Compartilhar</Text>
+                    </View>
+                </TouchableRipple>
+                <TouchableRipple onPress={navigateToScreen('SuportScreen')}>
+                    <View style={styles.MenuItem}>
+                        <Icon name='account-check-outline' color='#4f297a' size={25} />
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="chevron-forward" size={24} color="#4f297a" />
+                        </View>
+                        <Text style={styles.MenuItemText}>Suporte</Text>
+                    </View>
+                </TouchableRipple>
+                <TouchableRipple onPress={navigateToScreen('EditProfile')}>
+                    <View style={styles.MenuItem}>
+                        <Icon name='shield-edit' color='#4f297a' size={25} />
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="chevron-forward" size={24} color="#4f297a" />
+                        </View>
+                        <Text style={styles.MenuItemText}>Editar Perfil</Text>
+                    </View>
+                </TouchableRipple>
+            </View>
+        </SafeAreaView >
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        padding: 0,
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: 0,
+        flex: 1,
     },
-    /** Profile */
-    profile: {
-        padding: 24,
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+    userInfoSection: {
+        paddingHorizontal: 30,
+        marginBottom: 25,
     },
-    profileAvatarWrapper: {
-        position: 'relative',
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
     },
-    profileAvatar: {
-        width: 72,
-        height: 72,
-        borderRadius: 9999,
+    caption: {
+        fontSize: 14,
+        lineHeight: 14,
+        fontWeight: '500',
     },
-    profileAction: {
-        position: 'absolute',
-        right: -4,
-        bottom: -10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 28,
-        height: 28,
-        borderRadius: 9999,
-        backgroundColor: '#007bff',
-    },
-    profileName: {
-        marginTop: 20,
-        fontSize: 19,
-        fontWeight: '600',
-        color: '#414d63',
-        textAlign: 'center',
-    },
-    profileAddress: {
-        marginTop: 5,
-        fontSize: 16,
-        color: '#989898',
-        textAlign: 'center',
-    },
-    /** Section */
-    section: {
-        paddingHorizontal: 24,
-    },
-    sectionTitle: {
-        paddingVertical: 12,
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#9e9e9e',
-        textTransform: 'uppercase',
-        letterSpacing: 1.1,
-    },
-    /** Row */
     row: {
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        height: 50,
-        backgroundColor: '#f2f2f2',
-        borderRadius: 8,
-        marginBottom: 12,
-        paddingLeft: 12,
-        paddingRight: 12,
+        marginBottom: 10,
     },
-    rowIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: 9999,
-        marginRight: 12,
+    infoBoxWrapper: {
+        borderBottomColor: '#dddddd',
+        borderBottomWidth: 1,
+        borderTopColor: '#dddddd',
+        borderTopWidth: 1,
         flexDirection: 'row',
+        height: 100,
+    },
+    infoBox: {
+        width: '50%',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    rowLabel: {
-        fontSize: 17,
-        fontWeight: '400',
-        color: '#0c0c0c',
+    menuwrapper: {
+        marginTop: 10,
     },
-    rowSpacer: {
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: 0,
+    MenuItem: {
+        flexDirection: 'row',
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+    },
+    MenuItemText: {
+        color: '#4f297a',
+        marginLeft: 20,
+        fontWeight: '600',
+        fontSize: 16,
+        lineHeight: 26,
+    },
+    iconContainer: {
+        position: 'absolute',
+        right: 20,
     },
 });
