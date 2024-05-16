@@ -7,3 +7,15 @@ export const getUserId = async () => {
 export const getUserName = async () => {
     return await SecureStore.getItemAsync('userName');
 };
+
+export const getUserAddress = async () => {
+    return await SecureStore.getItemAsync('userAddress');
+}
+
+export const getUserEmail = async () => {
+    return await SecureStore.getItemAsync('userEmail');
+}
+
+export const getUserContactPhone = async () => {
+    return await SecureStore.getItemAsync('userContactPhone');
+}

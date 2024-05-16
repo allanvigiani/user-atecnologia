@@ -62,7 +62,7 @@ export default function Routes() {
                 const token = await getToken();
 
                 const { data } = await axios.post(
-                    `https://user-auth-api2.vercel.app/user-auth/logout/`,
+                    baseURL + `/logout/`,
                     null,
                     {
                         headers: {
@@ -71,9 +71,10 @@ export default function Routes() {
                     }
                 );
 
-                navigation.navigate('Login')
-                await deleteToken()
-
+                if ( data.message.success ) {
+                    await deleteToken()
+                    navigation.navigate('Login')
+                }
             } catch (error) {
                 console.error(`Erro: ${error}`);
             }

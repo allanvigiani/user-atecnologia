@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityInd
 import baseUrl from '../../apis/UserAuth'
 import { storeToken } from '../../secure/StoreToken';
 import { getToken } from '../../secure/GetToken'
-import { storeUserId, storeUserName } from '../../secure/StoreUserId';
+import { storeUserAdress, storeUserContactPhone, storeUserEmail, storeUserId, storeUserName } from '../../secure/StoreUserId';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -64,9 +64,15 @@ export default function Login() {
 
             const user_id = response.data.message.id;
             const user_name = response.data.message.name;
+            const user_address = response.data.message.address;
+            const user_email = response.data.message.email;
+            const user_contact_phone = response.data.message.contact_phone;
             
             await storeUserId(user_id);
             await storeUserName(user_name);
+            await storeUserAdress(user_address);
+            await storeUserEmail(user_email);
+            await storeUserContactPhone(user_contact_phone);
 
             setLoading(true);
 

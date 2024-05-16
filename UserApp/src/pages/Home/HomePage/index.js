@@ -5,6 +5,7 @@ import Carousel from 'react-native-reanimated-carousel';
 import { Avatar, Card, IconButton, SegmentedButtons } from 'react-native-paper';
 import axios from 'axios';
 import { getToken } from "../../../secure/GetToken";
+import baseURL from "../../../apis/CompanyServices";
 
 export default function HomePage() {
     const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ export default function HomePage() {
 
         try {
             const { data: servicesByType } = await axios.get(
-                `https://company-services-api.vercel.app/services-types/${type}`,
+                baseURL + `services-types/${type}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -44,7 +45,7 @@ export default function HomePage() {
 
             try {
                 const { data: servicesTypes } = await axios.get(
-                    `https://company-services-api.vercel.app/types/all-types`,
+                    baseURL + `types/all-types`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -68,7 +69,7 @@ export default function HomePage() {
 
             try {
                 const { data: servicesByType } = await axios.get(
-                    `https://company-services-api.vercel.app/services-types/0`,
+                    baseURL + `services-types/0`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

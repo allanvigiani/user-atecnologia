@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
     SafeAreaView,
@@ -8,8 +8,33 @@ import {
 import { Avatar, Title, Caption, TouchableRipple } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Ionicons } from '@expo/vector-icons';
+import { getUserName, getUserAddress, getUserEmail, getUserContactPhone } from '../../../secure/GetUserId';
 
 export default function Profile({ navigation }) {
+    const [username, setUsername] = useState('');
+    const [address, setAddress] = useState('');
+    const [email, setEmail] = useState('');
+    const [contactPhone, setContactPhone] = useState('');
+
+    useEffect(() => {
+        async function fetchUserData() {
+            const user = await getUserName();
+            const name = user.split(' ')[0]
+            setUsername(name);
+
+            const address = await getUserAddress();
+            setAddress(address);
+
+            const email = await getUserEmail();
+            setEmail(email);
+
+            const contactPhone = await getUserContactPhone();
+            setContactPhone(contactPhone);
+
+        };
+
+        fetchUserData();
+    }, []);
 
     const navigateToScreen = (screenName) => () => {
         navigation.navigate(screenName);
@@ -26,8 +51,8 @@ export default function Profile({ navigation }) {
                         <Title style={[styles.title, {
                             marginTop: 15,
                             marginBottom: 5,
-                        }]}>Thony Cunha</Title>
-                        <Caption style={styles.caption}>@thonycunha</Caption>
+                        }]}>{username}</Title>
+                        <Caption style={styles.caption}>@{username}</Caption>
                     </View>
                 </View>
             </View>
@@ -35,15 +60,15 @@ export default function Profile({ navigation }) {
             <View style={styles.userInfoSection}>
                 <View style={styles.row}>
                     <Icon name='map-marker-radius' color='#4f297a' size={20} style={{ marginLeft: 10 }} />
-                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>Rua Vereador Luiz Antônio da Cunha, Rio de Janeiro</Text>
+                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>{address}</Text>
                 </View>
                 <View style={styles.row}>
                     <Icon name='phone' color='#4f297a' size={20} style={{ marginLeft: 10 }} />
-                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>(21) 96733-4174</Text>
+                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>{contactPhone}</Text>
                 </View>
                 <View style={styles.row}>
                     <Icon name='email' color='#4f297a' size={20} style={{ marginLeft: 10 }} />
-                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>thonycunha@gmail.com</Text>
+                    <Text style={{ color: '#4f297a', marginLeft: 10 }}>{email}</Text>
                 </View>
             </View>
 
