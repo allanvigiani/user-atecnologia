@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
-import baseUrl from '../../apis/UserAuth'
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Modal, SafeAreaView } from 'react-native';
+import baseUrl from '../../apis/UserAuth';
 import { storeToken } from '../../secure/StoreToken';
-import { getToken } from '../../secure/GetToken'
+import { getToken } from '../../secure/GetToken';
 import { storeUserAdress, storeUserContactPhone, storeUserEmail, storeUserId, storeUserName } from '../../secure/StoreUserId';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { TextInput, Button } from 'react-native-paper';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -30,14 +30,8 @@ export default function Login() {
             const token = response.data.message.token;
             await storeToken(token);
 
-            const userId = response.data.message.id;
-            const userName = response.data.message.name;
-            
-            await storeUserId(userId);
-            await storeUserName(userName);
-
-            setTimeout(() => {
-                navigation.navigate('Home');
+            setTimeout(async () => {
+                await verifyUserLogged();
                 setLoading(false);
             }, 2000);
         } catch (error) {
@@ -55,6 +49,8 @@ export default function Login() {
         try {
 
             const token = await getToken();
+
+            if (!token) return setMessage('');
 
             const response = await axios.get(baseUrl + '/user', {
                 headers: {
@@ -85,7 +81,7 @@ export default function Login() {
 
         } catch (error) {
             setLoading(false);
-            setMessage('Não foi possível realizar o login!');
+            setMessage('');
 
         }
     };
@@ -95,79 +91,83 @@ export default function Login() {
     }, []);
 
     return (
-        <View style={styles.container}>
-            <View style={styles.container_logo}>
-                <Image
-                    source={require('../../../assets/agendai_logo.png')}
-                    style={{ width: '100%' }}
-                    resizeMode='contain'
-                />
-            </View>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                <View style={styles.container_logo}>
+                    <Image
+                        source={require('../../../assets/agendai_logo.png')}
+                        style={{ width: '100%' }}
+                        resizeMode='contain'
+                    />
+                </View>
 
-            <View style={styles.container_form}>
-                <Text style={styles.title}>Acesse sua conta!</Text>
+                <View style={styles.container_form}>
+                    <Text style={styles.title}>Acesse sua conta!</Text>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="E-mail"
-                    placeholderTextColor="#999"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-
-                <View style={styles.input_area}>
                     <TextInput
-                        style={styles.password_input}
-                        placeholder="Senha"
-                        placeholderTextColor="#999"
+                        label="E-mail"
+                        placeholder="Digite seu e-mail"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        style={styles.input}
+                        theme={{ colors: { primary: '#4f297a', text: '#000000' } }}
+                    />
+
+                    <TextInput
+                        label="Senha"
+                        placeholder="Digite sua senha"
                         secureTextEntry={!passwordVisible}
                         value={password}
                         onChangeText={setPassword}
+                        keyboardType="visible-password"
+                        right={<TextInput.Icon icon="eye" onPress={() => setPasswordVisible(!passwordVisible)} />}
+                        style={styles.input}
+                        theme={{ colors: { primary: '#4f297a', text: '#000000' } }}
                     />
-                    <TouchableOpacity
-                        style={styles.icon}
-                        onPress={() => setPasswordVisible(!passwordVisible)}
+
+                    <View style={styles.register_container}>
+                        <Text style={styles.normal_text}>Não tem uma conta? </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                            <Text style={styles.register_text}>Cadastre-se</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {message !== '' && <Text style={styles.message}>{message}</Text>}
+
+                    {loading && (
+                        <Modal transparent={true} animationType="none">
+                            <View style={styles.modalBackground}>
+                                <ActivityIndicator size="large" color="#4f297a" />
+                            </View>
+                        </Modal>
+                    )}
+
+                    <Button
+                        mode="contained"
+                        onPress={loginUser}
+                        contentStyle={styles.buttonContent}
+                        style={styles.button}
+                        labelStyle={styles.text_button}
                     >
-                        <Ionicons name={passwordVisible ? "eye-off" : "eye"} size={20} color="#999" />
-                    </TouchableOpacity>
+                        Entrar
+                    </Button>
                 </View>
-
-                <View style={styles.register_container}>
-                    <Text style={styles.normal_text}>Não tem uma conta? </Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                        <Text style={styles.register_text}>Cadastre-se</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {message !== '' && <Text style={styles.message}>{message}</Text>}
-
-                {loading && (
-                    <Modal transparent={true} animationType="none">
-                        <View style={styles.modalBackground}>
-                            <ActivityIndicator size="large" color="#4f297a" />
-                        </View>
-                    </Modal>
-                )}
-
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={loginUser}
-                >
-                    <Text style={styles.text_button}>Entrar</Text>
-                </TouchableOpacity>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#4f297a',
+    },
     container: {
         flex: 1,
         backgroundColor: '#4f297a',
     },
     container_logo: {
-        flex: 1.5,
+        flex: 1,
         backgroundColor: '#FFF',
         justifyContent: 'center',
         alignItems: 'center'
@@ -183,35 +183,17 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginTop: 30,
+        marginTop: 20,
         marginBottom: 12,
         color: '#FFF'
     },
     input: {
-        width: '90%',
-        height: 40,
+        width: '80%',
         backgroundColor: '#FFF',
-        borderRadius: 25,
+        borderRadius: 10,
         marginBottom: 15,
         paddingLeft: 20,
         fontSize: 16,
-    },
-    input_area: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '90%',
-        backgroundColor: '#FFF',
-        borderRadius: 25
-    },
-    password_input: {
-        paddingLeft: 20,
-        width: '90%',
-        marginBottom: 15,
-        fontSize: 16,
-    },
-    icon: {
-        paddingRight: 10,
     },
     register_container: {
         flexDirection: 'row',
@@ -231,12 +213,12 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: '#FFF',
         borderRadius: 35,
-        paddingVertical: 8,
-        width: '60%',
-        height: '15%',
+        width: '50%',
         alignSelf: 'center',
-        alignItems: 'center',
-        justifyContent: 'center'
+        marginTop: 10,
+    },
+    buttonContent: {
+        height: 50,
     },
     text_button: {
         fontSize: 18,
@@ -244,7 +226,7 @@ const styles = StyleSheet.create({
         color: '#4f297a',
     },
     message: {
-        fontSize: 16,
+        fontSize: 10,
         color: '#FFF'
     },
     modalBackground: {

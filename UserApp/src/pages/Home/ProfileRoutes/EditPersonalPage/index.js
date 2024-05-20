@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Modal, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TextInput, Button, IconButton, Text } from "react-native-paper";
+import { TextInput, Button, Text, Snackbar } from "react-native-paper";
 import axios from 'axios';
 import { getToken } from "../../../../secure/GetToken";
+import { storeUserAdress, storeUserContactPhone, storeUserEmail, storeUserId, storeUserName } from "../../../../secure/StoreUserId";
+import baseURL from "../../../../apis/User";
 
 export default function PersonalInfoScreen({ navigation }) {
     const [id, setId] = useState('');
@@ -12,6 +14,10 @@ export default function PersonalInfoScreen({ navigation }) {
     const [address, setAddress] = useState('');
     const [complement, setComplement] = useState('');
     const [number, setNumber] = useState('');
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
 
     const handleCpfChange = (event) => {
         let cpfValue = event.replace(/\D/g, '');
@@ -20,6 +26,29 @@ export default function PersonalInfoScreen({ navigation }) {
         cpfValue = cpfValue.replace(/(\d{3})(\d)/, '$1.$2');
         cpfValue = cpfValue.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
         setCpf(cpfValue);
+    };
+
+    const logOut = async () => {
+        try {
+            const token = await getToken();
+
+            const { data } = await axios.post(
+                baseURL + `/logout/`,
+                null,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (data.message.success) {
+                await deleteToken()
+                navigation.navigate('Login')
+            }
+        } catch (error) {
+            console.error(`Erro: ${error}`);
+        }
     };
 
     useEffect(() => {
@@ -32,9 +61,12 @@ export default function PersonalInfoScreen({ navigation }) {
     const fetchData = async () => {
         const token = await getToken();
 
+        if (!token) logOut();
+
+        setLoading(true);
         try {
             const { data: userData } = await axios.get(
-                `https://user-api-one.vercel.app/user/`,
+                baseURL + `/`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -42,12 +74,26 @@ export default function PersonalInfoScreen({ navigation }) {
                 }
             );
 
-            setId(userData.message.id)
-            setName(userData.message.name)
-            setAddress(userData.message.address)
+            const user_id = userData.message.id;
+            const user_name = userData.message.name;
+            const user_address = userData.message.address;
+            const user_email = userData.message.email;
+            const user_contact_phone = userData.message.contact_phone;
+
+            await storeUserId(user_id);
+            await storeUserName(user_name);
+            await storeUserAdress(user_address);
+            await storeUserEmail(user_email);
+            await storeUserContactPhone(user_contact_phone);
+
+            setId(user_id)
+            setName(user_name)
+            setAddress(user_address)
+            setNumber(user_contact_phone)
         } catch (error) {
             console.error(error);
         }
+        setLoading(false); // Fim do carregamento
     };
 
     const handleSave = async () => {
@@ -61,8 +107,8 @@ export default function PersonalInfoScreen({ navigation }) {
 
         const token = await getToken();
 
+        setLoading(true);
         try {
-
             formData = {
                 id: id,
                 name: name,
@@ -73,7 +119,7 @@ export default function PersonalInfoScreen({ navigation }) {
             };
 
             const { data: updateUser } = await axios.put(
-                `https://user-api-one.vercel.app/user/`,
+                baseURL + `/`,
                 formData,
                 {
                     headers: {
@@ -82,15 +128,34 @@ export default function PersonalInfoScreen({ navigation }) {
                 }
             );
 
-            console.log(updateUser);
+            await fetchData();
+            setMessage(updateUser.message);
+            setSnackbarVisible(true);
         } catch (error) {
             console.error(error);
         }
+        setLoading(false);
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchData();
+        setRefreshing(false);
     };
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView contentContainerStyle={styles.container}>
+            <ScrollView
+                contentContainerStyle={styles.container}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            >
+                {loading && (
+                    <Modal transparent={true} animationType="none">
+                        <View style={styles.loading_circle}>
+                            <ActivityIndicator size="large" color="#4f297a" />
+                        </View>
+                    </Modal>
+                )}
                 <View style={styles.inputContainer}>
                     <TextInput mode="outlined"
                         label="Nome:"
@@ -150,6 +215,14 @@ export default function PersonalInfoScreen({ navigation }) {
                     </View>
                 </TouchableOpacity>
             </ScrollView>
+            <Snackbar
+                visible={snackbarVisible}
+                onDismiss={() => setSnackbarVisible(false)}
+                duration={3000}
+                style={styles.snackbar}
+            >
+                <Text style={styles.snackbarText}>{message}</Text>
+            </Snackbar>
         </SafeAreaView>
     );
 }
@@ -180,5 +253,29 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: 'white',
+    },
+    loading_circle: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    snackbar: {
+        flex: 1,
+        backgroundColor: '#4f297a',
+        height: 70,
+        justifyContent: 'center',
+        alignItems: 'center'
+
+    },
+    snackbarText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: 'white',
+        textAlign: 'center',
     },
 });
