@@ -19,7 +19,6 @@ export default function Login() {
 
     const loginUser = async () => {
         try {
-
             const response = await axios.post(baseUrl + '/login', {
                 email: email,
                 password: password,
@@ -44,10 +43,8 @@ export default function Login() {
         }
     };
 
-
     const verifyUserLogged = async () => {
         try {
-
             const token = await getToken();
 
             if (!token) return setMessage('');
@@ -78,11 +75,9 @@ export default function Login() {
                     setLoading(false);
                 }, 2000);
             }
-
         } catch (error) {
             setLoading(false);
             setMessage('');
-
         }
     };
 
@@ -120,8 +115,8 @@ export default function Login() {
                         secureTextEntry={!passwordVisible}
                         value={password}
                         onChangeText={setPassword}
-                        keyboardType="visible-password"
-                        right={<TextInput.Icon icon="eye" onPress={() => setPasswordVisible(!passwordVisible)} />}
+                        keyboardType="default"
+                        right={<TextInput.Icon icon={passwordVisible ? "eye-off" : "eye"} onPress={() => setPasswordVisible(!passwordVisible)} />}
                         style={styles.input}
                         theme={{ colors: { primary: '#4f297a', text: '#000000' } }}
                     />

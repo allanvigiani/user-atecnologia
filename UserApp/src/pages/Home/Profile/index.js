@@ -12,9 +12,11 @@ import {
 import { Avatar, Title, Caption, TouchableRipple } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios'; // Adicionei o axios, pois é usado no logOut
-import { getUserName, getUserAddress, getUserEmail, getUserContactPhone } from '../../../secure/GetUserId';
+import axios from 'axios';
+import { getUserId, getUserName, getUserAddress, getUserEmail, getUserContactPhone } from '../../../secure/GetUserId';
 import { getToken, deleteToken } from '../../../secure/GetToken';
+import baseURL from '../../../apis/User';
+import baseURLScheduleStatus from '../../../apis/ScheduleStatus';
 
 export default function Profile({ navigation }) {
     const [username, setUsername] = useState('');
@@ -25,10 +27,13 @@ export default function Profile({ navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [scheduledCount, setScheduledCount] = useState(0);
+    const [confirmedCount, setConfirmedCount] = useState(0);
 
     const onRefresh = async () => {
         setRefreshing(true);
         await fetchUserData();
+        await fetchAppointmentData();
         setRefreshing(false);
     };
 
@@ -56,7 +61,6 @@ export default function Profile({ navigation }) {
     };
 
     const fetchUserData = async () => {
-
         try {
             const token = await getToken();
 
@@ -79,15 +83,57 @@ export default function Profile({ navigation }) {
 
             const contactPhone = await getUserContactPhone();
             setContactPhone(contactPhone);
-            
+
             setTimeout(() => setLoading(false), 1000);
         } catch (error) {
             console.error(`Erro: ${error}`);
         }
     };
 
+    const fetchAppointmentData = async () => {
+        try {
+            const token = await getToken();
+
+            if (!token) {
+                logOut();
+                return;
+            }
+
+            const userId = await getUserId();
+
+            const response = await axios.get(
+                baseURLScheduleStatus + `/appointments/${userId}`,
+                null,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const appointments = response.data.message;
+            let scheduled = 0;
+            let confirmed = 0;
+
+            appointments.forEach((appointment) => {
+                if (appointment.id_status == 1) {
+                    scheduled++;
+                } else if (appointment.id_status == 2) {
+                    confirmed++;
+                }
+            }
+            );
+
+            setConfirmedCount(confirmed);
+            setScheduledCount(scheduled);
+        } catch (error) {
+            console.error(`Erro ao buscar dados de agendamento: ${error}`);
+        }
+    };
+
     useEffect(() => {
         fetchUserData();
+        fetchAppointmentData();
     }, []);
 
     const navigateToScreen = (screenName) => () => {
@@ -98,7 +144,7 @@ export default function Profile({ navigation }) {
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1 }}>
                 <ScrollView
-                    refreshControl={ // Corrigido aqui
+                    refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
                 >
@@ -145,12 +191,12 @@ export default function Profile({ navigation }) {
                                 borderRightColor: '#dddddd',
                                 borderRightWidth: 1,
                             }]}>
-                                <Title>10</Title>
+                                <Title>{scheduledCount}</Title>
                                 <Caption>Agendados</Caption>
                             </View>
 
                             <View style={styles.infoBox}>
-                                <Title>5</Title>
+                                <Title>{confirmedCount}</Title>
                                 <Caption>Confirmados</Caption>
                             </View>
                         </View>
