@@ -39,7 +39,7 @@ git clone https://github.com/allanvigiani/user-atecnologia
 ```
 Entre na pasta do projeto
 ```sh
-cd user-atecnologia/UserApp
+cd user-atecnologia/AgendAi
 ```
 Execute o projeto com o expo
 ```sh
