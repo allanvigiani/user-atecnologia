@@ -2,7 +2,7 @@
   "expo": {
     "name": "AgendAi",
     "slug": "AgendAi",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/agendai_logo.png",
     "userInterfaceStyle": "light",
@@ -18,16 +18,23 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.allanvigiani.AgendAi"
     },
     "web": {
       "favicon": "./assets/agendai_logo.png"
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5cf1b89f-3139-4ae9-9def-51a5079c69dd"
+      }
+    }
   }
 }

@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { View, StyleSheet, Dimensions, Image, SafeAreaView } from 'react-native';
-import image from '../../../../../assets/maintenance_image.png';
 
 export default function SupportScreen({ navigation }) {
     useEffect(() => {
@@ -12,7 +11,7 @@ export default function SupportScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <Image
-                source={image}
+                source={require('../../../../../assets/maintenance.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover"
             />
