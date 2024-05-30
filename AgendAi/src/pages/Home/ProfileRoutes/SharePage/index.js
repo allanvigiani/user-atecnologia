@@ -10,11 +10,11 @@ export default function ShareScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Image
+            {/* <Image
                 source={require('../../../../../assets/maintenance.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover"
-            />
+            /> */}
         </SafeAreaView>
     );
 }

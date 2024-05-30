@@ -9,11 +9,11 @@ export default function HomePage({ navigation }) {
     }, []);
     return (
         <SafeAreaView style={styles.container}>
-            <Image
+            {/* <Image
                 source={require('../../../../../assets/maintenance.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover"
-            />
+            /> */}
         </SafeAreaView>
     );
 }
