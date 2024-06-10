@@ -60,7 +60,7 @@ export default function Login() {
             const user_address = response.data.message.address;
             const user_email = response.data.message.email;
             const user_contact_phone = response.data.message.contact_phone;
-            
+
             await storeUserId(user_id);
             await storeUserName(user_name);
             await storeUserAdress(user_address);
@@ -127,6 +127,14 @@ export default function Login() {
                             <Text style={styles.register_text}>Cadastre-se</Text>
                         </TouchableOpacity>
                     </View>
+
+                    <View style={styles.password_container}>
+                        <Text style={styles.normal_text}>Esqueceu a senha? </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                            <Text style={styles.register_text}>Recuperar</Text>
+                        </TouchableOpacity>
+                    </View>
+
                     {message !== '' && <Text style={styles.message}>{message}</Text>}
 
                     {loading && (
@@ -193,6 +201,11 @@ const styles = StyleSheet.create({
     register_container: {
         flexDirection: 'row',
         marginTop: 20,
+        justifyContent: 'center',
+    },
+    password_container: {
+        flexDirection: 'row',
+        marginTop: 10,
         justifyContent: 'center',
         marginBottom: 25,
     },

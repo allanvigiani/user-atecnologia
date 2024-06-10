@@ -16,6 +16,10 @@ import EditDataPage from '../pages/Home/ProfileRoutes/EditDataPage';
 import SupportScreen from '../pages/Home/ProfileRoutes/SupportPage';
 import ShareScreen from '../pages/Home/ProfileRoutes/SharePage';
 import FavoriteScreen from '../pages/Home/ProfileRoutes/FavoritePage';
+import EmailScreen from '../pages/ForgotPassword/EmailScreen';
+import CodeVerificationScreen from '../pages/ForgotPassword/CodeVerificationScreen';
+import NewPasswordScreen from '../pages/ForgotPassword/NewPasswordScreen';
+
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -47,6 +51,11 @@ export default function Routes() {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
+                    name='ForgotPassword'
+                    component={TabsForgotPassword}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
                     name='Home'
                     component={TabsHome}
                     options={{ headerShown: false }}
@@ -71,7 +80,7 @@ export default function Routes() {
                     }
                 );
 
-                if ( data.message.success ) {
+                if (data.message.success) {
                     await deleteToken()
                     navigation.navigate('Login')
                 }
@@ -390,6 +399,48 @@ export default function Routes() {
             </Tab.Navigator>
         );
     };
+
+    const TabsForgotPassword = ({ navigation }) => {
+
+        return (
+            <Stack.Navigator
+                screenOptions={{
+                    headerStyle: {
+                        backgroundColor: "#f2f2f2",
+                        shadowColor: "#FFF",
+                        elevation: 0,
+                        borderBottomWidth: 0,
+                    },
+                    headerTintColor: "#4f297a",
+                }}
+            >
+                <Stack.Screen
+                    name="EmailScreen"
+                    component={EmailScreen}
+                    options={{
+                        title: '',
+                        tabBarVisible: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="CodeVerificationScreen"
+                    options={{
+                        title: 'Verificação de Código',
+                        headerTitleAlign: 'center',
+                    }}
+                    component={CodeVerificationScreen}
+                />
+                <Stack.Screen
+                    name="NewPasswordScreen"
+                    options={{
+                        title: 'Nova Senha',
+                        headerTitleAlign: 'center',
+                    }}
+                    component={NewPasswordScreen}
+                />
+            </Stack.Navigator>
+        );
+    }
 
     return (
         <StackAuth />
