@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import axios from 'axios';
-import baseUrl from '../../../apis/UserAuth';
+import baseUrl from '../../../apis/User';
 import { useNavigation } from '@react-navigation/native';
 
 export default function EmailScreen() {
@@ -15,11 +15,11 @@ export default function EmailScreen() {
     const handleEmailSubmit = async () => {
         try {
             setLoading(true);
-            // const response = await axios.post(baseUrl + '/forgot-password', {
-            //     email: email,
-            // });
+            const response = await axios.post(baseUrl + '/send-email-password', {
+                email: email,
+            });
 
-            // setMessage(response.data.message);
+           setMessage(response.data.message);
             setLoading(false);
 
             setTimeout(() => {
