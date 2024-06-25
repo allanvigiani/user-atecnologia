@@ -19,19 +19,25 @@ export default function EmailScreen() {
                 email: email,
             });
 
-           setMessage(response.data.message);
-            setLoading(false);
+            setMessage(response.message.success);
+
+            if (response.status !== 200) {
+                setMessage(response.message);
+                setLoading(false);
+                return;
+            }
 
             setTimeout(() => {
                 setMessage('');
-                navigation.navigate('CodeVerificationScreen');
+                navigation.navigate('CodeVerificationScreen', { email: email });
+                setLoading(false);
             }, 3000);
         } catch (error) {
             setLoading(false);
             if (error.response) {
-                setMessage(error.response.data.message);
+                setMessage(error.response.message ? error.response.message.toString() : 'Erro no servidor');
             } else {
-                setMessage(error.message);
+                setMessage(error.message ? error.message.toString() : 'Erro no servidor');
             }
         }
     };

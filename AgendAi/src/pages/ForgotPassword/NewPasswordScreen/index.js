@@ -3,13 +3,15 @@ import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator } from '
 import { TextInput, Button } from 'react-native-paper';
 import axios from 'axios';
 import baseUrl from '../../../apis/User';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function NewPasswordScreen() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const route = useRoute();
+    const { email, code } = route.params;
 
     const navigation = useNavigation();
 
@@ -21,11 +23,18 @@ export default function NewPasswordScreen() {
 
         try {
             setLoading(true);
-            const response = await axios.post(baseUrl + '/reset-password', {
+
+            form = {
+                email: email,
+                code: code,
                 password: password,
+            };
+
+            const response = await axios.post(baseUrl + '/reset-password', {
+                form,
             });
 
-            setMessage(response.data.message);
+            setMessage(response.message.success);
             setLoading(false);
 
             setTimeout(() => {

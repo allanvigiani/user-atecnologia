@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator } from '
 import { TextInput, Button } from 'react-native-paper';
 import axios from 'axios';
 import baseUrl from '../../../apis/User';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function CodeVerificationScreen() {
     const [code, setCode] = useState(['', '', '', '']);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const route = useRoute();
+    const { email } = route.params;
 
     const navigation = useNavigation();
 
@@ -26,22 +28,27 @@ export default function CodeVerificationScreen() {
         }
 
         try {
-            setLoading(true);
-            const response = await axios.post(baseUrl + '/verify-code', {
+            const formData = {
+                email: email,
                 code: verificationCode,
+            };
+
+            setLoading(true);
+            const response = await axios.get(baseUrl + '/verify-code', {
+                formData,
             });
 
-            setMessage(response.data.message);
+            setMessage(response.message.success);
             setLoading(false);
 
             setTimeout(() => {
                 setMessage('');
-                navigation.navigate('NewPasswordScreen');
+                navigation.navigate('NewPasswordScreen', { email: email, code: verificationCode });
             }, 3000);
         } catch (error) {
             setLoading(false);
             if (error.response) {
-                setMessage(error.response.data.message);
+                setMessage(error.response.message);
             } else {
                 setMessage(error.message);
             }
