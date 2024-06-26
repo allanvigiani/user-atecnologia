@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function EmailScreen() {
     const [email, setEmail] = useState('');
-    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const navigation = useNavigation();
@@ -18,8 +17,6 @@ export default function EmailScreen() {
             const response = await axios.post(baseUrl + '/send-email-password', {
                 email: email,
             });
-
-            setMessage(response.message.success);
 
             if (response.status !== 200) {
                 setMessage(response.message);
@@ -56,8 +53,6 @@ export default function EmailScreen() {
                     style={styles.input}
                     theme={{ colors: { primary: '#4f297a', text: '#000000' } }}
                 />
-
-                {message !== '' && <Text style={styles.message}>{message}</Text>}
 
                 {loading && (
                     <Modal transparent={true} animationType="none">

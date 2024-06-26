@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator, Alert } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import axios from 'axios';
 import baseUrl from '../../../apis/User';
@@ -23,34 +23,26 @@ export default function CodeVerificationScreen() {
     const handleVerifyCode = async () => {
         const verificationCode = code.join('');
         if (verificationCode.length !== 4) {
-            setMessage('Por favor, insira um código de 4 dígitos.');
+            Alert.alert('Erro', 'Por favor, insira um código de 4 dígitos.');
             return;
         }
 
         try {
-            const formData = {
-                email: email,
-                code: verificationCode,
-            };
-
             setLoading(true);
-            const response = await axios.get(baseUrl + '/verify-code', {
-                formData,
-            });
+            const response = await axios.get(baseUrl + `/verify-code/${email}/${verificationCode}`);
 
-            setMessage(response.message.success);
-            setLoading(false);
-
-            setTimeout(() => {
-                setMessage('');
-                navigation.navigate('NewPasswordScreen', { email: email, code: verificationCode });
-            }, 3000);
+            if (response.status === 200) {
+                setTimeout(() => {
+                    navigation.navigate('NewPasswordScreen', { email: email, code: verificationCode });
+                    setLoading(false);
+                }, 1000);
+            }
         } catch (error) {
             setLoading(false);
             if (error.response) {
-                setMessage(error.response.message);
+                Alert.alert('Erro', error.response.data.message);
             } else {
-                setMessage(error.message);
+                Alert.alert('Erro', error.message);
             }
         }
     };
@@ -74,10 +66,8 @@ export default function CodeVerificationScreen() {
                     ))}
                 </View>
 
-                {message !== '' && <Text style={styles.message}>{message}</Text>}
-
                 {loading && (
-                    <Modal transparent={true} animationType="none">
+                    <Modal transparent={true} animationType="none" visible={loading}>
                         <View style={styles.modalBackground}>
                             <ActivityIndicator size="large" color="#4f297a" />
                         </View>
