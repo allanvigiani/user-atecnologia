@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert, SafeAreaView } from 'react-native';
 import axios from 'axios';
 import baseUrl from '../../apis/User';
 import { useNavigation } from '@react-navigation/native';
@@ -38,102 +38,103 @@ export default function Register() {
     }
 
     return (
-        <View style={Styles.container}>
-            <View style={Styles.container_logo}>
-                <Image
-                    source={require('../../../assets/agendai_logo.png')}
-                    style={{ width: '80%' }}
-                    resizeMode='contain'
-                />
-            </View>
-
-            <View style={Styles.container_form}>
-
-                <View style={Styles.form_content}>
-
-                    <Text style={Styles.title}>Faça seu cadastro!</Text>
-
-                    <TextInput
-                        style={Styles.input}
-                        placeholder="Nome"
-                        placeholderTextColor="#FFF"
-                        value={name}
-                        onChangeText={setName}
+        <SafeAreaView style={Styles.safeArea}>
+            <View style={Styles.container}>
+                <View style={Styles.container_logo}>
+                    <Image
+                        source={require('../../../assets/agendai_logo.png')}
+                        style={{ width: '80%' }}
+                        resizeMode='contain'
                     />
+                </View>
 
-                    <TextInput
-                        style={Styles.input}
-                        placeholder="E-mail"
-                        placeholderTextColor="#FFF"
-                        keyboardType="email-address"
-                        value={email}
-                        onChangeText={setEmail}
-                    />
+                <View style={Styles.container_form}>
+                    <View style={Styles.form_content}>
+                        <Text style={Styles.title}>Faça seu cadastro!</Text>
 
-                    <View style={Styles.input_area}>
                         <TextInput
-                            style={Styles.password_input}
-                            placeholder="Senha"
+                            style={Styles.input}
+                            placeholder="Nome"
                             placeholderTextColor="#FFF"
-                            secureTextEntry={!passwordVisible}
-                            value={password}
-                            onChangeText={setPassword}
+                            value={name}
+                            onChangeText={setName}
                         />
+
+                        <TextInput
+                            style={Styles.input}
+                            placeholder="E-mail"
+                            placeholderTextColor="#FFF"
+                            keyboardType="email-address"
+                            value={email}
+                            onChangeText={setEmail}
+                        />
+
+                        <View style={Styles.input_area}>
+                            <TextInput
+                                style={Styles.password_input}
+                                placeholder="Senha"
+                                placeholderTextColor="#FFF"
+                                secureTextEntry={!passwordVisible}
+                                value={password}
+                                onChangeText={setPassword}
+                            />
+                            <TouchableOpacity
+                                style={Styles.icon}
+                                onPress={() => setPasswordVisible(!passwordVisible)}
+                            >
+                                <Ionicons name={passwordVisible ? "eye-off" : "eye"} size={20} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <TextInput
+                            style={Styles.input}
+                            placeholder="Endereço"
+                            placeholderTextColor="#FFF"
+                            value={address}
+                            onChangeText={setAddress}
+                        />
+
+                        <TextInputMask
+                            type={'cel-phone'}
+                            options={{
+                                maskType: 'BRL',
+                                withDDD: true,
+                                dddMask: '(99) '
+                            }}
+                            style={Styles.input}
+                            placeholder="Celular"
+                            placeholderTextColor="#FFF"
+                            value={contactPhone}
+                            onChangeText={setcontactPhone}
+                        />
+
+                        {message !== '' && <Text style={Styles.message}>{message}</Text>}
+
                         <TouchableOpacity
-                            style={Styles.icon}
-                            onPress={() => setPasswordVisible(!passwordVisible)}
+                            style={Styles.button}
+                            onPress={registerUser}
                         >
-                            <Ionicons name={passwordVisible ? "eye-off" : "eye"} size={20} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
-
-                    <TextInput
-                        style={Styles.input}
-                        placeholder="Endereço"
-                        placeholderTextColor="#FFF"
-                        value={address}
-                        onChangeText={setAddress}
-                    />
-
-                    <TextInputMask
-                        type={'cel-phone'}
-                        options={{
-                            maskType: 'BRL',
-                            withDDD: true,
-                            dddMask: '(99) '
-                        }}
-                        style={Styles.input}
-                        placeholder="Celular"
-                        placeholderTextColor="#FFF"
-                        value={contactPhone}
-                        onChangeText={setcontactPhone}
-                    />
-
-                    {message !== '' && <Text style={Styles.message}>{message}</Text>}
-
-                    <TouchableOpacity
-                        style={Styles.button}
-                        onPress={registerUser}
-                    >
-                        <Text style={Styles.text_button}>Cadastrar</Text>
-                    </TouchableOpacity>
-
-                    <View style={Styles.login_container}>
-
-                        <Text style={Styles.normal_text}>Já possui uma conta? </Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                            <Text style={Styles.login_text}>Faça o Login</Text>
+                            <Text style={Styles.text_button}>Cadastrar</Text>
                         </TouchableOpacity>
 
+                        <View style={Styles.login_container}>
+                            <Text style={Styles.normal_text}>Já possui uma conta? </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                                <Text style={Styles.login_text}>Faça o Login</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const Styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#FFF',
+    },
     container: {
         flex: 1,
         backgroundColor: '#FFF',
@@ -158,8 +159,7 @@ const Styles = StyleSheet.create({
     },
     form_content: {
         backgroundColor: '#4f297a',
-        borderRadius: 20,
-        width: '90%',
+        width: '100%',
         alignItems: 'center',
         paddingVertical: 20,
     },

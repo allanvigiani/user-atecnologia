@@ -19,7 +19,7 @@ export default function HomePage() {
 
         try {
             const { data: servicesByType } = await axios.get(
-                baseURL + `services-types/${type}`,
+                baseURL + `services-types-app/${type}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -36,7 +36,7 @@ export default function HomePage() {
     useEffect(() => {
         async function fetchUsername() {
             const user = await getUserName();
-            const name = user.split(' ')[0]
+            const name = user.split(' ')[0];
             setUsername(name);
         };
 
@@ -69,7 +69,7 @@ export default function HomePage() {
 
             try {
                 const { data: servicesByType } = await axios.get(
-                    baseURL + `services-types/0`,
+                    baseURL + `services-types-app/0`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -151,10 +151,9 @@ export default function HomePage() {
                     </ScrollView>
                 </View>
                 {services.map(service => (
-                    <Card key={service.id}>
+                    <Card key={service.id} style={styles.card}>
                         <Card.Title
                             title={service.name}
-                            // subtitle={service.subtitle}
                             left={(props) => <Avatar.Icon {...props} icon="folder" />}
                             right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => { }} />}
                         />
@@ -195,5 +194,8 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    card: {
+        borderRadius: 0,
     },
 });

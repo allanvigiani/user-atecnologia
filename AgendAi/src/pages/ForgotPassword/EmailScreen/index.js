@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Modal, ActivityIndicator, Alert } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import axios from 'axios';
 import baseUrl from '../../../apis/User';
@@ -14,27 +14,26 @@ export default function EmailScreen() {
     const handleEmailSubmit = async () => {
         try {
             setLoading(true);
-            const response = await axios.post(baseUrl + '/send-email-password', {
-                email: email,
-            });
+
+            const form = { email: email };
+            const response = await axios.post(baseUrl + '/send-email-password', form);
 
             if (response.status !== 200) {
-                setMessage(response.message);
+                Alert.alert('Erro', response.data.message);
                 setLoading(false);
                 return;
             }
 
             setTimeout(() => {
-                setMessage('');
                 navigation.navigate('CodeVerificationScreen', { email: email });
                 setLoading(false);
             }, 3000);
         } catch (error) {
             setLoading(false);
             if (error.response) {
-                setMessage(error.response.message ? error.response.message.toString() : 'Erro no servidor');
+                Alert.alert('Erro', error.response.message ? error.response.message.toString() : 'Erro no servidor');
             } else {
-                setMessage(error.message ? error.message.toString() : 'Erro no servidor');
+                Alert.alert('Erro', 'Erro no servidor');
             }
         }
     };
