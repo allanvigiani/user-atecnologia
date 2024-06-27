@@ -25,7 +25,7 @@ export default function Schedule() {
             const userId = await getUserId();
 
             const response = await axios.get(
-                baseURLScheduleStatus + `/appointments/${userId}`,
+                baseURLScheduleStatus + `/appointments-app/${userId}`,
                 null,
                 {
                     headers: {
