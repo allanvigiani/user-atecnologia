@@ -15,6 +15,7 @@ import AccessInfoScreen from '../pages/Home/ProfileRoutes/EditAccessPage';
 import EditDataPage from '../pages/Home/ProfileRoutes/EditDataPage';
 import SchedulesAwaitingPage from '../pages/Home/ProfileRoutes/SchedulesAwaitingPage';
 import SchedulesConfirmedPage from '../pages/Home/ProfileRoutes/SchedulesConfirmedPage';
+import SchedulesDetailsPage from '../pages/Home/ProfileRoutes/SchedulesDetailsPage';
 import SupportScreen from '../pages/Home/ProfileRoutes/SupportPage';
 import ShareScreen from '../pages/Home/ProfileRoutes/SharePage';
 import FavoriteScreen from '../pages/Home/ProfileRoutes/FavoritePage';
@@ -289,6 +290,70 @@ export default function Routes() {
                         ),
                     }}
                     component={SchedulesConfirmedPage}
+                />
+                <Stack.Screen
+                    name="SchedulesAwaitingDetailsScreen"
+                    options={{
+                        title: 'DETALHES DO AGENDAMENTO',
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <View style={{ marginLeft: 10 }}>
+                                <Ionicons.Button
+                                    name="arrow-back"
+                                    size={25}
+                                    color={"#4f297a"}
+                                    backgroundColor={"#f2f2f2"}
+                                    onPress={() => {
+                                        navigation.setOptions({
+                                            tabBarStyle: {
+                                                position: 'absolute',
+                                                backgroundColor: '#4f297a',
+                                                borderTopWidth: 0,
+                                                elevation: 0,
+                                                borderTopLeftRadius: 2,
+                                                borderTopRightRadius: 2,
+                                                height: 70
+                                            },
+                                        });
+                                        navigation.navigate('SchedulesAwaitingScreen');
+                                    }}
+                                />
+                            </View>
+                        ),
+                    }}
+                    component={SchedulesDetailsPage}
+                />
+                <Stack.Screen
+                    name="SchedulesConfirmedDetailsScreen"
+                    options={{
+                        title: 'DETALHES DO AGENDAMENTO',
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <View style={{ marginLeft: 10 }}>
+                                <Ionicons.Button
+                                    name="arrow-back"
+                                    size={25}
+                                    color={"#4f297a"}
+                                    backgroundColor={"#f2f2f2"}
+                                    onPress={() => {
+                                        navigation.setOptions({
+                                            tabBarStyle: {
+                                                position: 'absolute',
+                                                backgroundColor: '#4f297a',
+                                                borderTopWidth: 0,
+                                                elevation: 0,
+                                                borderTopLeftRadius: 2,
+                                                borderTopRightRadius: 2,
+                                                height: 70
+                                            },
+                                        });
+                                        navigation.navigate('SchedulesConfirmedScreen');
+                                    }}
+                                />
+                            </View>
+                        ),
+                    }}
+                    component={SchedulesDetailsPage}
                 /** Fim do Stack de Edição de Perfil */
                 />
                 <Stack.Screen

@@ -48,13 +48,12 @@ export default function SchedulesConfirmedScreen({ navigation }) {
         const formattedDate = format(parseISO(item.created_at), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
         return (
             <View style={styles.appointmentContainer}>
-                <Text style={styles.dateText}>{formattedDate}</Text>
                 <View style={styles.appointmentDetails}>
                     <Text style={styles.companyText}>{item.name}</Text>
                     <Text style={styles.appointmentIdText}>Agendamento Confirmado • Nº {item.id}</Text>
                     <Text style={styles.detailsText}>{item.description}, {item.start_time}</Text>
                     <View style={styles.actions}>
-                        <TouchableOpacity style={styles.button}>
+                        <TouchableOpacity onPress={() => navigation.navigate('SchedulesConfirmedDetailsScreen', { serviceDetails: item })} style={styles.button}>
                             <Text style={styles.buttonText}>Detalhes</Text>
                         </TouchableOpacity>
                     </View>
