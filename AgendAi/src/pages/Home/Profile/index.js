@@ -185,22 +185,34 @@ export default function Profile({ navigation }) {
                         </View>
                     </View>
 
-                    <TouchableRipple onPress={navigateToScreen('Screen1')}>
-                        <View style={styles.infoBoxWrapper}>
-                            <View style={[styles.infoBox, {
+                    <View style={styles.infoBoxWrapper}>
+                        <TouchableRipple
+                            onPress={() => {
+                                navigateToScreen('SchedulesAwaitingScreen')();
+                            }}
+                            style={[styles.infoBox, {
                                 borderRightColor: '#dddddd',
                                 borderRightWidth: 1,
-                            }]}>
+                            }]}
+                        >
+                            <View>
                                 <Title>{scheduledCount}</Title>
                                 <Caption>Agendados</Caption>
                             </View>
+                        </TouchableRipple>
 
-                            <View style={styles.infoBox}>
+                        <TouchableRipple
+                            onPress={() => {
+                                navigateToScreen('SchedulesConfirmedScreen')();
+                            }}
+                            style={styles.infoBox}
+                        >
+                            <View>
                                 <Title>{confirmedCount}</Title>
                                 <Caption>Confirmados</Caption>
                             </View>
-                        </View>
-                    </TouchableRipple>
+                        </TouchableRipple>
+                    </View>
 
                     <View style={styles.menuwrapper}>
                         <TouchableRipple onPress={navigateToScreen('FavoriteScreen')}>

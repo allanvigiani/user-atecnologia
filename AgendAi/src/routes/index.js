@@ -13,6 +13,8 @@ import EditProfileScreen from '../pages/Home/ProfileRoutes/EditProfile/';
 import PersonalInfoScreen from '../pages/Home/ProfileRoutes/EditPersonalPage/';
 import AccessInfoScreen from '../pages/Home/ProfileRoutes/EditAccessPage';
 import EditDataPage from '../pages/Home/ProfileRoutes/EditDataPage';
+import SchedulesAwaitingPage from '../pages/Home/ProfileRoutes/SchedulesAwaitingPage';
+import SchedulesConfirmedPage from '../pages/Home/ProfileRoutes/SchedulesConfirmedPage';
 import SupportScreen from '../pages/Home/ProfileRoutes/SupportPage';
 import ShareScreen from '../pages/Home/ProfileRoutes/SharePage';
 import FavoriteScreen from '../pages/Home/ProfileRoutes/FavoritePage';
@@ -223,6 +225,70 @@ export default function Routes() {
                         ),
                     }}
                     component={EditDataPage}
+                />
+                <Stack.Screen
+                    name="SchedulesAwaitingScreen"
+                    options={{
+                        title: '',
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <View style={{ marginLeft: 10 }}>
+                                <Ionicons.Button
+                                    name="arrow-back"
+                                    size={25}
+                                    color={"#4f297a"}
+                                    backgroundColor={"#f2f2f2"}
+                                    onPress={() => {
+                                        navigation.setOptions({
+                                            tabBarStyle: {
+                                                position: 'absolute',
+                                                backgroundColor: '#4f297a',
+                                                borderTopWidth: 0,
+                                                elevation: 0,
+                                                borderTopLeftRadius: 2,
+                                                borderTopRightRadius: 2,
+                                                height: 70
+                                            },
+                                        });
+                                        navigation.navigate('ProfileScreen');
+                                    }}
+                                />
+                            </View>
+                        ),
+                    }}
+                    component={SchedulesAwaitingPage}
+                />
+                <Stack.Screen
+                    name="SchedulesConfirmedScreen"
+                    options={{
+                        title: '',
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <View style={{ marginLeft: 10 }}>
+                                <Ionicons.Button
+                                    name="arrow-back"
+                                    size={25}
+                                    color={"#4f297a"}
+                                    backgroundColor={"#f2f2f2"}
+                                    onPress={() => {
+                                        navigation.setOptions({
+                                            tabBarStyle: {
+                                                position: 'absolute',
+                                                backgroundColor: '#4f297a',
+                                                borderTopWidth: 0,
+                                                elevation: 0,
+                                                borderTopLeftRadius: 2,
+                                                borderTopRightRadius: 2,
+                                                height: 70
+                                            },
+                                        });
+                                        navigation.navigate('ProfileScreen');
+                                    }}
+                                />
+                            </View>
+                        ),
+                    }}
+                    component={SchedulesConfirmedPage}
                 /** Fim do Stack de Edição de Perfil */
                 />
                 <Stack.Screen
