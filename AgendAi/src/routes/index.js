@@ -229,7 +229,7 @@ export default function Routes() {
                 <Stack.Screen
                     name="SchedulesAwaitingScreen"
                     options={{
-                        title: '',
+                        title: 'AGENDAMENTOS PENDENTES',
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <View style={{ marginLeft: 10 }}>
@@ -261,7 +261,7 @@ export default function Routes() {
                 <Stack.Screen
                     name="SchedulesConfirmedScreen"
                     options={{
-                        title: '',
+                        title: 'AGENDAMENTOS CONFIRMADOS',
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <View style={{ marginLeft: 10 }}>
