@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, ScrollView, Modal, ActivityIndicator, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, Modal, ActivityIndicator, TouchableOpacity, Alert, RefreshControl, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import axios from 'axios';
@@ -13,26 +13,26 @@ import baseUrl from "../../../apis/CompanyServices";
 import baseURLService from "../../../apis/Schedule";
 
 export default function Search() {
-
+    const route = useRoute();
     const navigation = useNavigation();
+    const { serviceId } = route.params || {};
 
     const [message, setMessage] = useState('');
+    const [servicesTypes, setServicesTypes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
     const [searchService, setSearchService] = useState('');
-
     const [services, setServices] = useState([]);
     const [setedDays, setDays] = useState([]);
     const [setedDates, setDates] = useState([]);
     const [setedHours, setHours] = useState([]);
-
     const [days, setDayService] = useState('');
     const [date, setDateService] = useState('');
     const [hours, setHourService] = useState('');
 
     const [selectedService, setSelectedService] = useState(null);
-
+    const [selectedServiceType, setSelectedServiceType] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [dayModalVisible, setDayModalVisible] = useState(false);
     const [dateModalVisible, setDateModalVisible] = useState(false);
@@ -42,18 +42,37 @@ export default function Search() {
     const [tempDate, setTempDate] = useState(0);
     const [tempHour, setTempHour] = useState(0);
 
-    // Inicialização da tela
     useEffect(() => {
-        getServices();
-    }, []);
-
-    const handleSearchService = async () => {
-        if (searchService.length >= 3) {
-
-            setLoading(true);
+        async function getServicesTypes() {
             const token = await getToken();
 
-            const response = await axios.get(baseUrl + `search/${searchService}`, {
+            try {
+                const { data: servicesTypes } = await axios.get(
+                    baseUrl + `types/all-types`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const formattedServicesTypes = servicesTypes.message.result.map(serviceType => ({
+                    value: serviceType.id,
+                    label: serviceType.type,
+                }));
+
+                setServicesTypes(formattedServicesTypes);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function handleSearchServiceFromHome(serviceId) {
+            setLoading(true);
+            const token = await getToken();
+            const url = `${baseUrl}get-service-app/${serviceId}`;
+
+            const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -61,23 +80,51 @@ export default function Search() {
 
             setServices(response.data.message);
             setLoading(false);
+        };
 
-        } else if (searchService.length == 0) {
-            getServices();
+        getServicesTypes();
+        if (serviceId) {
+            handleSearchServiceFromHome(serviceId);
+        }
+    }, [serviceId]);
+
+    const handleSearchService = async () => {
+        setLoading(true);
+        if (searchService.length >= 3) {
+            const token = await getToken();
+            const url = selectedServiceType ? `${baseUrl}search-types/${searchService}/${selectedServiceType}` : `${baseUrl}search/${searchService}`;
+
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response.data.message.length === 0) {
+                Alert.alert("Nenhum serviço encontrado", "Tente novamente com outra busca.");
+            }
+
+            setServices(response.data.message);
+            setLoading(false);
+        } else if (searchService.length === 0) {
+            setSelectedServiceType('');
+            setMessage('');
+            setServices([]);
+            setLoading(false);
         }
     };
 
     const onRefresh = async () => {
         setRefreshing(true);
-        getServices();
+        setSelectedServiceType('');
+        setMessage('');
+        setServices([]);
         setRefreshing(false);
     };
 
     const nextDays = async (index) => {
-
         const hoje = new Date();
         const diaAtual = hoje.getDay();
-
         let diasParaAdicionar = (index - diaAtual + 7) % 7;
         if (diasParaAdicionar === 0) diasParaAdicionar = 7;
 
@@ -85,7 +132,6 @@ export default function Search() {
         primeiraData.setDate(hoje.getDate() + diasParaAdicionar);
 
         const datas = [primeiraData];
-
         for (let i = 1; i < 3; i++) {
             const novaData = new Date(datas[i - 1]);
             novaData.setDate(datas[i - 1].getDate() + 7);
@@ -95,15 +141,20 @@ export default function Search() {
         return datas.map(data => format(data, 'dd/MM/yyyy', { locale: ptBR }));
     };
 
-    const getServices = async () => {
+    const getServicesByType = async (id_type) => {
         try {
             setLoading(true);
+            setSelectedServiceType(id_type);
             const token = await getToken();
-            const response = await axios.get(baseUrl, {
+            const response = await axios.get(baseUrl + `services-types-app/${id_type}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            if (response.data.message.result.length === 0) {
+                Alert.alert("Nenhum serviço encontrado", "Tente novamente com outra categoria.");
+            }
             if (response.data.message.result) {
                 setServices(response.data.message.result);
             } else {
@@ -117,11 +168,9 @@ export default function Search() {
         }
     };
 
-    // useEffect(() => {
-    //     if (hours != '') {
-    //         finalizeSchedule(date, days, hours, selectedService);
-    //     }
-    // }, [hours, date, days, selectedService]);
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    };
 
     const handleHourChange = (itemValue, itemIndex) => {
         setTempHour(itemValue);
@@ -165,12 +214,10 @@ export default function Search() {
     };
 
     const confirmDay = async () => {
-
-        // TODO: Paleativo para o bug do segunda vir como zero, consertar depois (newTempDay)
         let newTempDay = 0;
         if (tempDay == 0) {
             newTempDay = 1;
-        }else {
+        } else {
             newTempDay = tempDay;
         }
 
@@ -178,10 +225,9 @@ export default function Search() {
         setLoading(true);
 
         const dates = await nextDays(newTempDay);
-
         setDates(dates);
         setTempDate(dates[0]);
-        
+
         setTimeout(() => {
             setDayModalVisible(false);
             setLoading(false)
@@ -190,9 +236,7 @@ export default function Search() {
     };
 
     const confirmDate = async () => {
-
         setDateService(tempDate);
-
         setLoading(true);
 
         const token = await getToken();
@@ -210,16 +254,12 @@ export default function Search() {
 
         if (response.data.message) {
             setHours(response.data.message);
-            // Seta um valor com default (O que ja vem selecionado no picker)
-
-            console.log('response:', response.data.message)
 
             const keys = Object.keys(response.data.message);
             const firstKey = keys[0];
 
             setHourService(parseInt(firstKey));
-
-        }else {
+        } else {
             Alert.alert('Error', 'Não foi possível encontrar horários disponíveis. Tente outro dia!');
         }
 
@@ -241,11 +281,9 @@ export default function Search() {
 
     async function finalizeSchedule() {
         try {
-
             setLoading(true);
 
             const userId = await getUserId();
-
             const scheduleFields = {
                 date: date,
                 day: days,
@@ -254,7 +292,6 @@ export default function Search() {
                 user_id: userId
             };
 
-            // Envia para a API de agendamento
             const token = await getToken();
 
             const parts = scheduleFields.date.split('/');
@@ -278,8 +315,6 @@ export default function Search() {
             setLoading(false);
 
             Alert.alert('Agendamento Realizado!');
-            // await resetState();
-
         } catch (error) {
             console.error('Error finalizing schedule:', error);
             Alert.alert('Error', 'Não foi possível realizar o agendamento. Tente mais tarde!');
@@ -288,47 +323,62 @@ export default function Search() {
 
     const resetState = async () => {
         navigation.navigate('Search');
-    }
+    };
 
     return (
-        <View style={styles.container}>
-            <ScrollView
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            >
-                <View style={styles.search_section}>
+        <SafeAreaView style={styles.container}>
+            <ScrollView refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
+                <View style={styles.searchContainer}>
                     <Ionicons name="search" size={20} color="#4f297a" style={styles.search_icon} />
                     <TextInput
-                        style={styles.search_input}
-                        placeholder="Pesquise aqui..."
+                        style={styles.searchInput}
+                        placeholder={selectedServiceType ? `Buscar por ${servicesTypes.find(type => type.value === selectedServiceType)?.label} - AgendAi` : "Buscar em Todo o AgendAi"}
                         placeholderTextColor="#666"
                         onChangeText={setSearchService}
                         onSubmitEditing={handleSearchService}
                     />
                 </View>
-                <View>
-                    {message !== '' && <Text style={styles.message}>{message}</Text>}
-                    {loading && (
-                        <Modal transparent={true} animationType="none">
-                            <View style={styles.loading_circle}>
-                                <ActivityIndicator size="large" color="#4f297a" />
-                            </View>
-                        </Modal>
-                    )}
-                    <ScrollView style={styles.container_service}>
-                        {services.map((service, index) => (
-                            <View key={service.id} style={styles.itemBox}>
-                                <View style={styles.textContainer}>
-                                    <Text style={styles.itemTextName}>{service.name}</Text>
-                                    <Text style={styles.itemText}>Profissional: {service.professional_name}</Text>
-                                    <Text style={styles.itemText}>R$ {service.price}</Text>
-                                </View>
-                                <TouchableOpacity onPress={() => openScheduleModal(service)}>
-                                    <Ionicons name="add-circle-outline" size={40} color="#FFF" style={styles.add_icon} />
-                                </TouchableOpacity>
-                            </View>
+                {services.length === 0 && (
+                    <Text style={styles.categoryTitle}>Categorias</Text>
+                )}
+                {services.length === 0 && (
+                    <View style={styles.categoriesContainer}>
+                        {servicesTypes.map((category, index) => (
+                            <TouchableOpacity onPress={() => getServicesByType(category.value)} key={index} style={styles.categoryCard}>
+                                <Text style={styles.categoryText}>{category.label}</Text>
+                            </TouchableOpacity>
                         ))}
+                    </View>
+                )}
+                <View>
+                    <ScrollView>
+                        {message !== '' && <Text style={styles.message}>{message}</Text>}
+                        {loading && (
+                            <Modal transparent={true} animationType="none">
+                                <View style={styles.loading_circle}>
+                                    <ActivityIndicator size="large" color="#4f297a" />
+                                </View>
+                            </Modal>
+                        )}
+                        <View style={styles.container_service}>
+                            {services.length !== 0 && (
+                                <Text style={styles.categoryTitle}>Você procura por</Text>
+                            )}
+                            {services.map((service, index) => (
+                                <View key={service.id} style={styles.itemBox}>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.itemTextName}>{service.name}</Text>
+                                        <Text style={styles.itemTextNameCompany}>{service.company_name}</Text>
+                                        <Text style={styles.itemText}>{service.address}</Text>
+                                    </View>
+                                    <TouchableOpacity onPress={() => openScheduleModal(service)}>
+                                        <Ionicons name="add-circle-outline" size={40} color="#FFF" style={styles.add_icon} />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
                     </ScrollView>
                 </View>
 
@@ -346,7 +396,7 @@ export default function Search() {
                             <Text style={styles.modalText}>AgendAI!</Text>
                             <Text style={styles.labelText}>Serviço: {selectedService ? selectedService.name : ''}</Text>
                             <Text style={styles.labelText}>Profissional: {selectedService ? selectedService.professional_name : ''}</Text>
-                            <Text style={styles.labelText}>Preço: R${selectedService ? selectedService.price : ''}</Text>
+                            <Text style={styles.labelText}>Preço: {selectedService ? formatCurrency(selectedService.price) : ''}</Text>
                             <Text style={styles.labelText}>Empresa: {selectedService ? selectedService.company_name : ''}</Text>
                             <Text style={styles.labelText}>Endereço: {selectedService ? selectedService.address : ''}</Text>
                             <TouchableOpacity style={styles.schedule_button} onPress={transitionToDayModal}>
@@ -356,7 +406,6 @@ export default function Search() {
                     </View>
                 </Modal>
 
-                {/* DIA DA SEMANA */}
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -387,7 +436,6 @@ export default function Search() {
                         </View>
                     </View>
                 </Modal>
-                {/* DATA DO SERVIÇO */}
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -419,7 +467,6 @@ export default function Search() {
                     </View>
                 </Modal>
 
-                {/* HORÁRIO DO SERVIÇO */}
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -451,32 +498,53 @@ export default function Search() {
                     </View>
                 </Modal>
             </ScrollView>
-        </View >
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'top',
-        alignItems: 'center',
-        border: 1,
-        paddingTop: 20,
-    },
-    search_section: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#fff',
-        borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-        elevation: 5,
-        paddingHorizontal: 10,
-        width: '100%',
-        height: 60
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        padding: 10,
+        margin: 10,
+        borderRadius: 5,
+    },
+    searchInput: {
+        marginLeft: 10,
+        fontSize: 16,
+        color: '#000',
+    },
+    categoriesContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        padding: 10,
+    },
+    categoryCard: {
+        backgroundColor: '#f5f5f5',
+        width: '48%',
+        marginBottom: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        padding: 25,
+        borderWidth: 1,
+        flexDirection: 'row',
+    },
+    categoryImage: {
+        width: 50,
+        height: 50,
+        marginBottom: 10,
+        marginRight: 10,
+    },
+    categoryText: {
+        fontSize: 16,
+        color: '#000',
     },
     search_icon: {
         padding: 10,
@@ -507,18 +575,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     container_service: {
-        width: '100%'
+        width: '100%',
+        padding: 15,
+        marginBottom: 70,
     },
     itemBox: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: '#4f297a',
-        width: 320,
-        height: 100,
+        width: '100%',
+        height: 110,
         marginTop: 10,
         padding: 15,
-        borderRadius: 10,
     },
     textContainer: {
         flex: 1,
@@ -529,6 +598,12 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         marginBottom: 5,
         textDecorationLine: 'underline'
+    },
+    itemTextNameCompany: {
+        color: 'white',
+        fontSize: 20,
+        textAlign: 'left',
+        marginBottom: 5,
     },
     itemText: {
         color: 'white',
@@ -610,5 +685,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: '#FFF',
+    },
+    categoryTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginVertical: 10,
+        color: '#000',
+        paddingLeft: 10,
     },
 });

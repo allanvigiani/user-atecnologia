@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { getUserName } from '../../../secure/GetUserId';
 import Carousel from 'react-native-reanimated-carousel';
-import { Avatar, Card, IconButton, SegmentedButtons } from 'react-native-paper';
+import { Avatar, Card, IconButton, SegmentedButtons, Menu, Provider } from 'react-native-paper';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import { getToken } from "../../../secure/GetToken";
 import baseURL from "../../../apis/CompanyServices";
 
@@ -13,6 +14,10 @@ export default function HomePage() {
     const [selectedServiceType, setSelectedServiceType] = useState(null);
     const [services, setServices] = useState([]);
     const [servicesTypes, setServicesTypes] = useState([]);
+    const [visibleMenu, setVisibleMenu] = useState(false);
+    const [selectedService, setSelectedService] = useState(null);
+
+    const navigation = useNavigation();
 
     const fetchServicesByType = async (type) => {
         const token = await getToken();
@@ -98,69 +103,96 @@ export default function HomePage() {
         }
     };
 
+    const openMenu = (service) => {
+        setSelectedService(service);
+        setVisibleMenu(true);
+    };
+
+    const closeMenu = () => setVisibleMenu(false);
+
+    const handleMenuOption = (option) => {
+        closeMenu();
+        if (option === 'Cadastrar' && selectedService) {
+            navigation.navigate('Search', { serviceId: selectedService.id });
+        }
+        // Add other options here
+    };
+
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView>
-                <View style={styles.topView}>
-                    <Text style={styles.welcomeText}>
-                        Bem-vindo, {username}!
-                    </Text>
-                    <Text style={styles.incentiveText}>
-                        Aqui você pode visualizar seus agendamentos e informações de perfil.
-                    </Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Carousel
-                        loop
-                        width={width}
-                        height={width / 2}
-                        autoPlay={true}
-                        data={[...new Array(6).keys()]}
-                        scrollAnimationDuration={6000}
-                        renderItem={({ index }) => (
-                            <View
-                                style={{
-                                    flex: 1,
-                                    borderWidth: 1,
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Text style={{ textAlign: 'center', fontSize: 30 }}>
-                                    {index}
-                                </Text>
-                            </View>
-                        )}
-                    />
-                </View>
-                <View style={styles.topView}>
-                    <Text style={styles.incentiveText}>
-                        Selecione um tipo de serviço:
-                    </Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={{ marginTop: 10 }}
-                        contentContainerStyle={styles.scrollViewContent}
-                    >
-                        <SegmentedButtons
-                            value={selectedServiceType}
-                            onValueChange={handleServiceTypeChange}
-                            buttons={servicesTypes}
-                            style={{ flex: 1, alignContent: 'center', alignItems: 'center' }}
+        <Provider>
+            <SafeAreaView style={styles.container}>
+                <ScrollView>
+                    <View style={styles.topView}>
+                        <Text style={styles.welcomeText}>
+                            Bem-vindo, {username}!
+                        </Text>
+                        <Text style={styles.incentiveText}>
+                            Aqui você pode visualizar seus agendamentos e informações de perfil.
+                        </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Carousel
+                            loop
+                            width={width}
+                            height={width / 2}
+                            autoPlay={true}
+                            data={[...new Array(6).keys()]}
+                            scrollAnimationDuration={6000}
+                            renderItem={({ index }) => (
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        borderWidth: 1,
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <Text style={{ textAlign: 'center', fontSize: 30 }}>
+                                        {index}
+                                    </Text>
+                                </View>
+                            )}
                         />
-                    </ScrollView>
-                </View>
-                {services.map(service => (
-                    <Card key={service.id} style={styles.card}>
-                        <Card.Title
-                            title={service.name}
-                            left={(props) => <Avatar.Icon {...props} icon="folder" />}
-                            right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => { }} />}
-                        />
-                    </Card>
-                ))}
-            </ScrollView>
-        </SafeAreaView>
+                    </View>
+                    <View style={styles.topView}>
+                        <Text style={styles.incentiveText}>
+                            Selecione um tipo de serviço:
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            style={{ marginTop: 10 }}
+                            contentContainerStyle={styles.scrollViewContent}
+                        >
+                            <SegmentedButtons
+                                value={selectedServiceType}
+                                onValueChange={handleServiceTypeChange}
+                                buttons={servicesTypes}
+                                style={{ flex: 1, alignContent: 'center', alignItems: 'center' }}
+                            />
+                        </ScrollView>
+                    </View>
+                    {services.map(service => (
+                        <Card key={service.id} style={styles.card}>
+                            <Card.Title
+                                title={service.name}
+                                left={(props) => <Avatar.Icon {...props} icon="folder" />}
+                                right={(props) => (
+                                    <Menu
+                                        visible={visibleMenu && selectedService && selectedService.id === service.id}
+                                        onDismiss={closeMenu}
+                                        anchor={
+                                            <IconButton {...props} icon="dots-vertical" onPress={() => openMenu(service)} />
+                                        }
+                                    >
+                                        <Menu.Item onPress={() => handleMenuOption('Cadastrar')} title="Cadastrar" />
+                                    </Menu>
+                                )}
+                            />
+                        </Card>
+                    ))}
+                </ScrollView>
+            </SafeAreaView>
+        </Provider>
     );
 }
 
