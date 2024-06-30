@@ -8,6 +8,7 @@ import Register from '../pages/Register';
 import HomePage from '../pages/Home/HomePage/';
 import Search from '../pages/Home/Search/';
 import Schedules from '../pages/Home/Schedules/';
+import SchedulesAgendaDetailsScreen from '../pages/Home/SchedulesRoutes/SchedulesAgendaDetailsScreen';
 import ProfileScreen from '../pages/Home/Profile/';
 import EditProfileScreen from '../pages/Home/ProfileRoutes/EditProfile/';
 import PersonalInfoScreen from '../pages/Home/ProfileRoutes/EditPersonalPage/';
@@ -462,6 +463,39 @@ export default function Routes() {
         );
     }
 
+    const StackSchedules = ({ navigation }) => {
+        return (
+            <Stack.Navigator
+                screenOptions={{
+                    headerStyle: {
+                        backgroundColor: "#f2f2f2",
+                        shadowColor: "#FFF",
+                        elevation: 0,
+                        borderBottomWidth: 0,
+                    },
+                    headerTintColor: "#4f297a",
+                }}
+            >
+                <Stack.Screen
+                    name="Schedules"
+                    component={Schedules}
+                    options={{
+                        title: 'Agendamentos',
+                        headerTitleAlign: 'center',
+                    }}
+                />
+                <Stack.Screen
+                    name="SchedulesAgendaDetailsScreen"
+                    options={{
+                        title: 'Detalhes do Agendamento',
+                        headerTitleAlign: 'center',
+                    }}
+                    component={SchedulesAgendaDetailsScreen}
+                />
+            </Stack.Navigator>
+        );
+    };
+
     const TabsHome = () => {
         return (
             <Tab.Navigator
@@ -504,8 +538,8 @@ export default function Routes() {
                     }}
                 />
                 <Tab.Screen
-                    name='Schedules'
-                    component={Schedules}
+                    name='SchedulesHome'
+                    component={StackSchedules}
                     options={{
                         headerShown: false,
                         tabBarIcon: ({ color, size, focused }) => (
