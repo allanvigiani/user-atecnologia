@@ -325,7 +325,8 @@ export default function Search() {
             Alert.alert('Agendamento Realizado!');
         } catch (error) {
             console.error('Error finalizing schedule:', error);
-            Alert.alert('Error', 'Não foi possível realizar o agendamento. Tente mais tarde!');
+            setLoading(false);
+            Alert.alert('Error', `Não foi possível realizar o agendamento. Tente mais tarde! ${error.message}`);
         }
     }
 
