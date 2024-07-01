@@ -89,28 +89,36 @@ export default function Search() {
     }, [serviceId]);
 
     const handleSearchService = async () => {
-        setLoading(true);
-        if (searchService.length >= 3) {
+        const trimmedSearchService = searchService.trim();
+
+        if (trimmedSearchService.length >= 3) {
+            setLoading(true);
             const token = await getToken();
-            const url = selectedServiceType ? `${baseUrl}search-types/${searchService}/${selectedServiceType}` : `${baseUrl}search/${searchService}`;
+            const url = selectedServiceType ? `${baseUrl}search-types/${trimmedSearchService}/${selectedServiceType}` : `${baseUrl}search/${trimmedSearchService}`;
 
-            const response = await axios.get(url, {
-                headers: {
-                    Authorization: `Bearer ${token}`
+            try {
+                const response = await axios.get(url, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                if (Array.isArray(response.data.message) && response.data.message.length === 0) {
+                    Alert.alert("Nenhum serviço encontrado", "Tente novamente com outra busca.");
                 }
-            });
 
-            if (response.data.message.length === 0) {
-                Alert.alert("Nenhum serviço encontrado", "Tente novamente com outra busca.");
+                setServices(Array.isArray(response.data.message) ? response.data.message : []);
+            } catch (error) {
+                console.error(error);
+                Alert.alert("Erro", "Não foi possível buscar os serviços.");
             }
 
-            setServices(response.data.message);
             setLoading(false);
-        } else if (searchService.length === 0) {
+        } else if (trimmedSearchService.length == 0) {
+            setSearchService('');
             setSelectedServiceType('');
             setMessage('');
             setServices([]);
-            setLoading(false);
         }
     };
 

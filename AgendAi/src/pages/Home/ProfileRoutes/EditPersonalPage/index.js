@@ -19,13 +19,21 @@ export default function PersonalInfoScreen({ navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
 
-    const handleCpfChange = (event) => {
+    const handleCpfChange = async (event) => {
         let cpfValue = event.replace(/\D/g, '');
         cpfValue = cpfValue.slice(0, 11);
         cpfValue = cpfValue.replace(/(\d{3})(\d)/, '$1.$2');
         cpfValue = cpfValue.replace(/(\d{3})(\d)/, '$1.$2');
         cpfValue = cpfValue.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
         setCpf(cpfValue);
+    };
+
+    const handleNumberChange = async (event) => {
+        let numberValue = event.replace(/\D/g, '');
+        numberValue = numberValue.slice(0, 11);
+        numberValue = numberValue.replace(/(\d{2})(\d)/, '($1) $2');
+        numberValue = numberValue.replace(/(\d{5})(\d)/, '$1-$2');
+        setNumber(numberValue);
     };
 
     const logOut = async () => {
@@ -79,6 +87,7 @@ export default function PersonalInfoScreen({ navigation }) {
             const user_address = userData.message.address;
             const user_email = userData.message.email;
             const user_contact_phone = userData.message.contact_phone;
+            const user_cpf = userData.message.cpf;
 
             await storeUserId(user_id);
             await storeUserName(user_name);
@@ -86,24 +95,20 @@ export default function PersonalInfoScreen({ navigation }) {
             await storeUserEmail(user_email);
             await storeUserContactPhone(user_contact_phone);
 
+            await handleCpfChange(user_cpf)
+            await handleNumberChange(user_contact_phone)
             setId(user_id)
             setName(user_name)
             setAddress(user_address)
-            setNumber(user_contact_phone)
         } catch (error) {
             console.error(error);
         }
-        setLoading(false); // Fim do carregamento
+        setLoading(false);
     };
 
     const handleSave = async () => {
         const onlyNumbersCpf = cpf.replace(/\D/g, '');
         const onlyNumbersNumber = number.replace(/\D/g, '');
-        console.log('Nome:', name);
-        console.log('CPF:', onlyNumbersCpf);
-        console.log('Endereço:', address);
-        console.log('Complemento:', complement);
-        console.log('Número:', onlyNumbersNumber);
 
         const token = await getToken();
 
@@ -114,7 +119,7 @@ export default function PersonalInfoScreen({ navigation }) {
                 name: name,
                 cpf: onlyNumbersCpf,
                 address: address,
-                contact_phone: null,
+                contact_phone: onlyNumbersNumber,
                 complement: complement,
             };
 
@@ -187,7 +192,7 @@ export default function PersonalInfoScreen({ navigation }) {
                             <TextInput.Icon icon="close" style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }} onPress={() => setAddress('')} />
                         )}
                     />
-                    <TextInput mode="outlined"
+                    {/* <TextInput mode="outlined"
                         label="Complemento:"
                         value={complement}
                         onChangeText={setComplement}
@@ -195,7 +200,7 @@ export default function PersonalInfoScreen({ navigation }) {
                         right={complement !== '' && (
                             <TextInput.Icon icon="close" style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }} onPress={() => setComplement('')} />
                         )}
-                    />
+                    /> */}
                     <TextInput mode="outlined"
                         label="Número:"
                         value={number}

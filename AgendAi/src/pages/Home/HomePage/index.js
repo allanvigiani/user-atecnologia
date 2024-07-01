@@ -112,10 +112,9 @@ export default function HomePage() {
 
     const handleMenuOption = (option) => {
         closeMenu();
-        if (option === 'Cadastrar' && selectedService) {
+        if (option === 'Agendar' && selectedService) {
             navigation.navigate('Search', { serviceId: selectedService.id });
         }
-        // Add other options here
     };
 
     return (
@@ -184,7 +183,7 @@ export default function HomePage() {
                                             <IconButton {...props} icon="dots-vertical" onPress={() => openMenu(service)} />
                                         }
                                     >
-                                        <Menu.Item onPress={() => handleMenuOption('Cadastrar')} title="Cadastrar" />
+                                        <Menu.Item onPress={() => handleMenuOption('Agendar')} title="Agenda Ai!" />
                                     </Menu>
                                 )}
                             />
