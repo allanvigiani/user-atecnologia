@@ -314,7 +314,13 @@ export default function Search() {
                 user_id: userId
             }
 
-            await axios.post(baseURLService + 'schedule/', newScheduleFields, {
+            // await axios.post(baseURLService + 'schedule/', newScheduleFields, {
+            //     headers: {
+            //         Authorization: `Bearer ${token}`
+            //     }
+            // });
+
+            await axios.post('http://3.208.28.27:3004/schedule/', newScheduleFields, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -327,6 +333,16 @@ export default function Search() {
             console.error('Error finalizing schedule:', error);
             setLoading(false);
             Alert.alert('Error', `Não foi possível realizar o agendamento. Tente mais tarde! ${error.message}`);
+            if (error.response) {
+                // O servidor respondeu com um código de status fora do 2xx
+                Alert.alert('Error', `IF 1! ${error.response.data}`);
+              } else if (error.request) {
+                // A requisição foi feita, mas não houve resposta
+                Alert.alert('Error', `IF 2! ${error.request}`);
+              } else {
+                // Algo aconteceu ao configurar a requisição
+                Alert.alert('Error', `IF 3! ${error.message}`);
+              }
         }
     }
 

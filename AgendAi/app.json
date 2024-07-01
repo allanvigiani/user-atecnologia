@@ -23,7 +23,10 @@
         "foregroundImage": "./assets/agendai_logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.allanvigiani.AgendAi"
+      "package": "com.allanvigiani.AgendAi",
+      "permissions": [
+        "INTERNET"
+      ]
     },
     "web": {
       "favicon": "./assets/agendai_logo.png"
