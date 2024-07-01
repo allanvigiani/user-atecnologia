@@ -37,6 +37,14 @@ export default function Profile({ navigation }) {
         setRefreshing(false);
     };
 
+    const handleNumberChange = async (event) => {
+        let numberValue = event.replace(/\D/g, '');
+        numberValue = numberValue.slice(0, 11);
+        numberValue = numberValue.replace(/(\d{2})(\d)/, '($1) $2');
+        numberValue = numberValue.replace(/(\d{5})(\d)/, '$1-$2');
+        setContactPhone(numberValue);
+    };
+
     const logOut = async () => {
         try {
             const token = await getToken();
@@ -82,7 +90,7 @@ export default function Profile({ navigation }) {
             setEmail(email);
 
             const contactPhone = await getUserContactPhone();
-            setContactPhone(contactPhone);
+            handleNumberChange(contactPhone);
 
             setTimeout(() => setLoading(false), 1000);
         } catch (error) {

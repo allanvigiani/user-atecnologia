@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput, Button, IconButton, Text } from "react-native-paper";
 import axios from 'axios';
 import { TextInputMask } from "react-native-masked-text";
 import { getToken } from "../../../../secure/GetToken";
+import { getUserContactPhone } from '../../../../secure/GetUserId';
+import { storeUserContactPhone} from '../../../../secure/StoreUserId';
 import IMask from 'imask';
 
 export default function EditDataScreen({ navigation }) {
@@ -19,18 +21,32 @@ export default function EditDataScreen({ navigation }) {
         maskedValue.resolve(numberValue);
         setCellNumber(maskedValue.value);
     };
-    
+
+    const handleNumberChange = async (event) => {
+        let numberValue = event.replace(/\D/g, '');
+        numberValue = numberValue.slice(0, 11);
+        numberValue = numberValue.replace(/(\d{2})(\d)/, '($1) $2');
+        numberValue = numberValue.replace(/(\d{5})(\d)/, '$1-$2');
+        setCellNumber(numberValue);
+    };
+
     useEffect(() => {
         navigation.getParent().setOptions({
             tabBarStyle: { display: 'none' }
         });
+
+        async function fetchData() {
+            const userContactPhone = await getUserContactPhone();
+            handleNumberChange(userContactPhone);
+        }
+
+        fetchData();
     }, []);
 
     const [cellNumber, setCellNumber] = useState('');
 
     const handleSave = async () => {
         const unmaskedNumber = cellNumber.replace(/\D/g, '');
-        console.log('Número de celular (sem máscara):', unmaskedNumber);
 
         const token = await getToken();
 
@@ -40,7 +56,6 @@ export default function EditDataScreen({ navigation }) {
                 contact_phone: unmaskedNumber,
             };
 
-            console.log(formData);
             const { data: updateUser } = await axios.put(
                 `https://user-api-one.vercel.app/user/`,
                 formData,
@@ -51,7 +66,10 @@ export default function EditDataScreen({ navigation }) {
                 }
             );
 
-            console.log(updateUser);
+            if (updateUser) {
+                await storeUserContactPhone(unmaskedNumber);
+                Alert.alert('Sucesso', 'Número de celular atualizado com sucesso!');
+            }
         } catch (error) {
             console.error(error);
         }
