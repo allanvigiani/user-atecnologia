@@ -314,13 +314,7 @@ export default function Search() {
                 user_id: userId
             }
 
-            // await axios.post(baseURLService + 'schedule/', newScheduleFields, {
-            //     headers: {
-            //         Authorization: `Bearer ${token}`
-            //     }
-            // });
-
-            await axios.post('http://3.208.28.27:3004/schedule/', newScheduleFields, {
+            await axios.post(baseURLService + 'schedule/', newScheduleFields, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
