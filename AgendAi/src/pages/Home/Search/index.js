@@ -246,7 +246,7 @@ export default function Search() {
     const confirmDate = async () => {
         setDateService(tempDate);
         setLoading(true);
-
+        Alert.alert('Aguarde', 'Etapa 1');
         const token = await getToken();
         const serviceId = selectedService.id;
         const companyId = selectedService.company_id;
@@ -283,7 +283,7 @@ export default function Search() {
             setHourService(tempHour);
             setHourModalVisible(false);
         }, 1000);
-
+        Alert.alert('Aguarde', 'Etapa 2');
         await finalizeSchedule();
     };
 
@@ -313,7 +313,7 @@ export default function Search() {
                 date: formatedDate,
                 user_id: userId
             }
-
+            Alert.alert('Aguarde', 'Etapa 4');
             // await axios.post(baseURLService + 'schedule/', newScheduleFields, {
             //     headers: {
             //         Authorization: `Bearer ${token}`
@@ -325,7 +325,7 @@ export default function Search() {
                     Authorization: `Bearer ${token}`
                 }
             });
-
+            Alert.alert('Aguarde', 'Etapa 5');
             setLoading(false);
 
             Alert.alert('Agendamento Realizado!');
