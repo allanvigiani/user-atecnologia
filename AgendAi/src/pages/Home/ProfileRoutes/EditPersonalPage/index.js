@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity, Modal, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput, Button, Text, Snackbar } from "react-native-paper";
@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getToken } from "../../../../secure/GetToken";
 import { storeUserAdress, storeUserContactPhone, storeUserEmail, storeUserId, storeUserName, storeUserCpf } from "../../../../secure/StoreUserId";
 import baseURL from "../../../../apis/User";
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function PersonalInfoScreen({ navigation }) {
     const [id, setId] = useState('');
@@ -51,11 +52,30 @@ export default function PersonalInfoScreen({ navigation }) {
     };
 
     useEffect(() => {
-        navigation.getParent().setOptions({
-            tabBarStyle: { display: 'none' }
-        });
         fetchData();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            navigation.getParent().setOptions({
+                tabBarStyle: { display: 'none' }
+            });
+
+            return () => {
+                navigation.getParent().setOptions({
+                    tabBarStyle: {
+                        position: 'absolute',
+                        backgroundColor: '#4f297a',
+                        borderTopWidth: 0,
+                        elevation: 0,
+                        borderTopLeftRadius: 2,
+                        borderTopRightRadius: 2,
+                        height: 70
+                    },
+                });
+            };
+        }, [navigation])
+    );
 
     const fetchData = async () => {
         const token = await getToken();
@@ -247,7 +267,6 @@ const styles = StyleSheet.create({
         height: 70,
         justifyContent: 'center',
         alignItems: 'center'
-
     },
     snackbarText: {
         fontSize: 16,

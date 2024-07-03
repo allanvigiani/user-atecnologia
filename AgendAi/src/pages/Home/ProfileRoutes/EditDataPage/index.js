@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TextInput, Button, IconButton, Text } from "react-native-paper";
+import { TextInput, Button, Text } from "react-native-paper";
 import axios from 'axios';
-import { TextInputMask } from "react-native-masked-text";
+import IMask from 'imask';
 import { getToken } from "../../../../secure/GetToken";
 import { getUserContactPhone } from '../../../../secure/GetUserId';
-import { storeUserContactPhone} from '../../../../secure/StoreUserId';
-import IMask from 'imask';
+import { storeUserContactPhone } from '../../../../secure/StoreUserId';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function EditDataScreen({ navigation }) {
+    const [cellNumber, setCellNumber] = useState('');
 
     const applyMask = (event) => {
         const numberValue = event.replace(/\D/g, '');
@@ -31,10 +32,6 @@ export default function EditDataScreen({ navigation }) {
     };
 
     useEffect(() => {
-        navigation.getParent().setOptions({
-            tabBarStyle: { display: 'none' }
-        });
-
         async function fetchData() {
             const userContactPhone = await getUserContactPhone();
             handleNumberChange(userContactPhone);
@@ -43,7 +40,27 @@ export default function EditDataScreen({ navigation }) {
         fetchData();
     }, []);
 
-    const [cellNumber, setCellNumber] = useState('');
+    useFocusEffect(
+        useCallback(() => {
+            navigation.getParent().setOptions({
+                tabBarStyle: { display: 'none' }
+            });
+
+            return () => {
+                navigation.getParent().setOptions({
+                    tabBarStyle: {
+                        position: 'absolute',
+                        backgroundColor: '#4f297a',
+                        borderTopWidth: 0,
+                        elevation: 0,
+                        borderTopLeftRadius: 2,
+                        borderTopRightRadius: 2,
+                        height: 70
+                    },
+                });
+            };
+        }, [navigation])
+    );
 
     const handleSave = async () => {
         const unmaskedNumber = cellNumber.replace(/\D/g, '');
@@ -51,7 +68,6 @@ export default function EditDataScreen({ navigation }) {
         const token = await getToken();
 
         try {
-
             const formData = {
                 contact_phone: unmaskedNumber,
             };
@@ -81,7 +97,8 @@ export default function EditDataScreen({ navigation }) {
                 <View style={styles.inputContainer}>
                     <Text style={styles.MenuItemText}>Qual o número do seu celular?</Text>
                     <View style={styles.textFieldContainer}>
-                        <TextInput mode="outlined"
+                        <TextInput
+                            mode="outlined"
                             label="Número de Celular"
                             placeholder="(00) 9 0000-0000"
                             value={cellNumber}
@@ -101,7 +118,7 @@ export default function EditDataScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-        </SafeAreaView >
+        </SafeAreaView>
     );
 }
 
