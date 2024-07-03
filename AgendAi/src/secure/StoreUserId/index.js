@@ -19,3 +19,7 @@ export const storeUserEmail = async (userEmail) => {
 export const storeUserContactPhone = async (userContactPhone) => {
     await SecureStore.setItemAsync('userContactPhone', userContactPhone)
 }
+
+export const storeUserCpf = async (userCpf) => {
+    await SecureStore.setItemAsync('userCpf', userCpf)
+}

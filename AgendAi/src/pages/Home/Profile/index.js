@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     StyleSheet,
     SafeAreaView,
@@ -17,6 +17,7 @@ import { getUserId, getUserName, getUserAddress, getUserEmail, getUserContactPho
 import { getToken, deleteToken } from '../../../secure/GetToken';
 import baseURL from '../../../apis/User';
 import baseURLScheduleStatus from '../../../apis/ScheduleStatus';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Profile({ navigation }) {
     const [username, setUsername] = useState('');
@@ -139,10 +140,12 @@ export default function Profile({ navigation }) {
         }
     };
 
-    useEffect(() => {
-        fetchUserData();
-        fetchAppointmentData();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchUserData();
+            fetchAppointmentData();
+        }, [])
+    );
 
     const navigateToScreen = (screenName) => () => {
         navigation.navigate(screenName);

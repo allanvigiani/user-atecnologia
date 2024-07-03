@@ -21,7 +21,7 @@ export default function SchedulesAgendaDetailsScreen({ route, navigation }) {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>{serviceDetails.name_company}</Text>
-                <Text style={styles.headerSubtitle}>CNPJ: {serviceDetails.cnpj}</Text>
+                <Text style={styles.headerSubtitle}>CNPJ: {serviceDetails.cnpj_company}</Text>
                 <Text style={styles.headerSubtitle}>Pedido nº {serviceDetails.id} • {formattedDate}</Text>
             </View>
 

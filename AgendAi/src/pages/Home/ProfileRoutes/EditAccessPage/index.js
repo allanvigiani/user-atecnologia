@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     StyleSheet,
     SafeAreaView,
@@ -13,6 +13,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { getToken, deleteToken } from '../../../../secure/GetToken';
+import baseURL from "../../../../apis/User";
+import { storeUserContactPhone } from '../../../../secure/StoreUserId';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function AccessInfoScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -24,6 +27,14 @@ export default function AccessInfoScreen({ navigation }) {
         setRefreshing(true);
         await fetchUserData();
         setRefreshing(false);
+    };
+
+    const handleNumberChange = async (event) => {
+        let numberValue = event.replace(/\D/g, '');
+        numberValue = numberValue.slice(0, 11);
+        numberValue = numberValue.replace(/(\d{2})(\d)/, '($1) $2');
+        numberValue = numberValue.replace(/(\d{5})(\d)/, '$1-$2');
+        setPhoneNumber(numberValue);
     };
 
     const logOut = async () => {
@@ -60,7 +71,7 @@ export default function AccessInfoScreen({ navigation }) {
 
             setLoading(true);
             const { data: userData } = await axios.get(
-                `https://user-api-one.vercel.app/user/`,
+                baseURL + `/`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -70,6 +81,8 @@ export default function AccessInfoScreen({ navigation }) {
 
             setEmail(userData.message.email);
             setPhoneNumber(userData.message.contact_phone);
+            await handleNumberChange(userData.message.contact_phone);
+            await storeUserContactPhone(userData.message.contact_phone);
             setTimeout(() => setLoading(false), 1000);
         } catch (error) {
             console.error(error);
@@ -77,9 +90,11 @@ export default function AccessInfoScreen({ navigation }) {
         }
     };
 
-    useEffect(() => {
-        fetchUserData();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchUserData();
+        }, [])
+    );
 
     const handleSave = () => {
     };

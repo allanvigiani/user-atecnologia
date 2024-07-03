@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput, Button, Text, Snackbar } from "react-native-paper";
 import axios from 'axios';
 import { getToken } from "../../../../secure/GetToken";
-import { storeUserAdress, storeUserContactPhone, storeUserEmail, storeUserId, storeUserName } from "../../../../secure/StoreUserId";
+import { storeUserAdress, storeUserContactPhone, storeUserEmail, storeUserId, storeUserName, storeUserCpf } from "../../../../secure/StoreUserId";
 import baseURL from "../../../../apis/User";
 
 export default function PersonalInfoScreen({ navigation }) {
@@ -13,7 +13,6 @@ export default function PersonalInfoScreen({ navigation }) {
     const [cpf, setCpf] = useState('');
     const [address, setAddress] = useState('');
     const [complement, setComplement] = useState('');
-    const [number, setNumber] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -26,14 +25,6 @@ export default function PersonalInfoScreen({ navigation }) {
         cpfValue = cpfValue.replace(/(\d{3})(\d)/, '$1.$2');
         cpfValue = cpfValue.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
         setCpf(cpfValue);
-    };
-
-    const handleNumberChange = async (event) => {
-        let numberValue = event.replace(/\D/g, '');
-        numberValue = numberValue.slice(0, 11);
-        numberValue = numberValue.replace(/(\d{2})(\d)/, '($1) $2');
-        numberValue = numberValue.replace(/(\d{5})(\d)/, '$1-$2');
-        setNumber(numberValue);
     };
 
     const logOut = async () => {
@@ -86,20 +77,22 @@ export default function PersonalInfoScreen({ navigation }) {
             const user_name = userData.message.name;
             const user_address = userData.message.address;
             const user_email = userData.message.email;
-            const user_contact_phone = userData.message.contact_phone;
             const user_cpf = userData.message.cpf;
 
             await storeUserId(user_id);
             await storeUserName(user_name);
             await storeUserAdress(user_address);
             await storeUserEmail(user_email);
-            await storeUserContactPhone(user_contact_phone);
 
-            await handleCpfChange(user_cpf)
-            await handleNumberChange(user_contact_phone)
+            if (user_cpf != null) {
+                await handleCpfChange(user_cpf)
+                await storeUserCpf(user_cpf);
+            }
+
             setId(user_id)
             setName(user_name)
             setAddress(user_address)
+
         } catch (error) {
             console.error(error);
         }
@@ -108,7 +101,6 @@ export default function PersonalInfoScreen({ navigation }) {
 
     const handleSave = async () => {
         const onlyNumbersCpf = cpf.replace(/\D/g, '');
-        const onlyNumbersNumber = number.replace(/\D/g, '');
 
         const token = await getToken();
 
@@ -119,7 +111,6 @@ export default function PersonalInfoScreen({ navigation }) {
                 name: name,
                 cpf: onlyNumbersCpf,
                 address: address,
-                contact_phone: onlyNumbersNumber,
                 complement: complement,
             };
 
@@ -190,25 +181,6 @@ export default function PersonalInfoScreen({ navigation }) {
                         style={styles.input}
                         right={address !== '' && (
                             <TextInput.Icon icon="close" style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }} onPress={() => setAddress('')} />
-                        )}
-                    />
-                    {/* <TextInput mode="outlined"
-                        label="Complemento:"
-                        value={complement}
-                        onChangeText={setComplement}
-                        style={styles.input}
-                        right={complement !== '' && (
-                            <TextInput.Icon icon="close" style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }} onPress={() => setComplement('')} />
-                        )}
-                    /> */}
-                    <TextInput mode="outlined"
-                        label="Número:"
-                        value={number}
-                        onChangeText={setNumber}
-                        keyboardType="numeric"
-                        style={styles.input}
-                        right={number !== '' && (
-                            <TextInput.Icon icon="close" style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }} onPress={() => setNumber('')} />
                         )}
                     />
                 </View>

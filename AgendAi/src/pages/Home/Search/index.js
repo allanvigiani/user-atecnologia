@@ -162,17 +162,20 @@ export default function Search() {
 
             if (response.data.message.result.length === 0) {
                 Alert.alert("Nenhum serviço encontrado", "Tente novamente com outra categoria.");
+                onRefresh();
             }
             if (response.data.message.result) {
                 setServices(response.data.message.result);
             } else {
                 setMessage('Nenhum serviço disponível no momento.');
+                onRefresh();
             }
             setTimeout(() => setLoading(false), 2000);
         } catch (error) {
             setLoading(false);
             const errorMessage = error.response ? error.response.data.message : error.message;
             setMessage(`${errorMessage} Tente novamente mais tarde!`);
+            onRefresh();
         }
     };
 

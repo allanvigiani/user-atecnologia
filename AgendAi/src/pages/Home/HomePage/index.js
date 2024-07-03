@@ -125,9 +125,9 @@ export default function HomePage() {
                         <Text style={styles.welcomeText}>
                             Bem-vindo, {username}!
                         </Text>
-                        <Text style={styles.incentiveText}>
+                        {/* <Text style={styles.incentiveText}>
                             Aqui você pode visualizar seus agendamentos e informações de perfil.
-                        </Text>
+                        </Text> */}
                     </View>
                     <View style={{ flex: 1 }}>
                         <Carousel
@@ -228,5 +228,6 @@ const styles = StyleSheet.create({
     },
     card: {
         borderRadius: 0,
+        backgroundColor: '#f2f2f2',
     },
 });

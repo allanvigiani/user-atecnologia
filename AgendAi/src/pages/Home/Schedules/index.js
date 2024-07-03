@@ -172,7 +172,7 @@ export default function Schedule({ navigation }) {
                     <ActivityIndicator size="large" color={colors.primary} />
                 ) : noAppointments ? (
                     <View style={styles.noAppointmentsContainer}>
-                        <Text style={styles.noAppointmentsText}>Nenhum registro agendado</Text>
+                        <Text style={styles.noAppointmentsText}>Nenhum Agendamento Realizado</Text>
                     </View>
                 ) : (
                     <Agenda
