@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
-import { Agenda } from 'react-native-calendars';
+import { Agenda, LocaleConfig } from 'react-native-calendars';
 import { Card } from "react-native-paper";
 import { useFocusEffect } from '@react-navigation/native';
 import { getToken } from "../../../secure/GetToken";
@@ -14,6 +14,49 @@ const colors = {
     secondary: '#FFFFFF',
     accent: '#FFFFFF',
 };
+
+LocaleConfig.locales['pt-br'] = {
+    monthNames: [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro"
+    ],
+    monthNamesShort: [
+        "Jan.",
+        "Fev.",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul.",
+        "Ago",
+        "Set.",
+        "Out.",
+        "Nov.",
+        "Dez."
+    ],
+    dayNames: [
+        "Domingo",
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado"
+    ],
+    dayNamesShort: ["Dom.", "Seg.", "Ter.", "Qua.", "Qui.", "Sex.", "Sáb."]
+};
+
+LocaleConfig.defaultLocale = "pt-br";
 
 export default function Schedule({ navigation }) {
     const [items, setItems] = useState({});
