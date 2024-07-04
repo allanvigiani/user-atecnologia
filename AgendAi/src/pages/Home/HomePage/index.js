@@ -167,6 +167,12 @@ export default function HomePage() {
                                 onValueChange={handleServiceTypeChange}
                                 buttons={servicesTypes}
                                 style={{ flex: 1, alignContent: 'center', alignItems: 'center' }}
+                                theme={{
+                                    colors: {
+                                        primary: '#4f297a', 
+                                        onSurface: '#4f297a',
+                                    },
+                                }}
                             />
                         </ScrollView>
                     </View>
