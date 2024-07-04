@@ -174,6 +174,7 @@ export default function HomePage() {
                         <Card key={service.id} style={styles.card}>
                             <Card.Title
                                 title={service.name}
+                                titleStyle={styles.cardTitle}
                                 left={(props) => <Avatar.Icon {...props} icon="folder" />}
                                 right={(props) => (
                                     <Menu
@@ -229,5 +230,8 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 0,
         backgroundColor: '#f2f2f2',
+    },
+    cardTitle: {
+        color: '#4f297a',
     },
 });
