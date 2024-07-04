@@ -1,6 +1,13 @@
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect } from "react";
 import { View, StyleSheet, Dimensions, Image, SafeAreaView } from 'react-native';
+import { Text } from "react-native-paper";
+
+const colors = {
+    primary: '#6A1B9A',
+    secondary: '#FFFFFF',
+    accent: '#FFFFFF',
+};
 
 export default function SupportScreen({ navigation }) {
     useEffect(() => {
@@ -30,11 +37,9 @@ export default function SupportScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* <Image
-                source={require('../../../../../assets/maintenance.png')}
-                style={styles.backgroundImage}
-                resizeMode="cover"
-            /> */}
+            <View style={styles.noAppointmentsContainer}>
+                <Text style={styles.noAppointmentsText}>Em Breve!</Text>
+            </View>
         </SafeAreaView>
     );
 }
@@ -47,5 +52,14 @@ const styles = StyleSheet.create({
         flex: 1,
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
+    },
+    noAppointmentsContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    noAppointmentsText: {
+        fontSize: 24,
+        color: colors.primary,
     },
 });

@@ -146,7 +146,7 @@ export default function HomePage() {
                                     }}
                                 >
                                     <Text style={{ textAlign: 'center', fontSize: 30 }}>
-                                        {index}
+                                        Imagem Promocional {index}
                                     </Text>
                                 </View>
                             )}
