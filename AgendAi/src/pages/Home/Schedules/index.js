@@ -130,6 +130,7 @@ export default function Schedule({ navigation }) {
                     descr_status: message.descr_status,
                     professional_name: message.professional_name,
                     company_id: message.company_id,
+                    contact_phone_company: message.contact_phone_company,
                     date: message.date,
                     height: 60,
                 });

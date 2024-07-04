@@ -22,6 +22,9 @@ export default function SchedulesDetailsScreen({ route, navigation }) {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>{serviceDetails.name_company}</Text>
                 <Text style={styles.headerSubtitle}>CNPJ: {serviceDetails.cnpj_company}</Text>
+                {serviceDetails.email_company && (
+                    <Text style={styles.headerSubtitle}>Email: {serviceDetails.email_company}</Text>
+                )}
                 <Text style={styles.headerSubtitle}>Pedido nº {serviceDetails.id} • {formattedDate}</Text>
             </View>
 
@@ -44,6 +47,9 @@ export default function SchedulesDetailsScreen({ route, navigation }) {
                 <Text style={styles.sectionTitle}>Endereço da Empresa</Text>
                 <View style={styles.detailsContainer}>
                     <Text style={styles.detailText}>{serviceDetails.address_company}</Text>
+                    {serviceDetails.contact_phone_company && (
+                        <Text style={styles.detailText}>Telefone: {serviceDetails.contact_phone_company}</Text>
+                    )}
                 </View>
             </View>
         </SafeAreaView>
