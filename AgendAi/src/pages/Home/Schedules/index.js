@@ -131,6 +131,7 @@ export default function Schedule({ navigation }) {
                     professional_name: message.professional_name,
                     company_id: message.company_id,
                     contact_phone_company: message.contact_phone_company,
+                    email_company: message.email_company,
                     date: message.date,
                     height: 60,
                 });
